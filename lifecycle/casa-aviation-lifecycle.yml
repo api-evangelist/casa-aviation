@@ -1,0 +1,103 @@
+generated: '2026-07-28'
+method: searched
+source: >-
+  CASA published pages plus live probes on 2026-07-28
+summary: >-
+  CASA publishes no API versioning policy, no deprecation policy and no SLA. It
+  does run a real, reachable service-availability page for its online systems, and
+  its statutory publication obligations act as a floor under availability of the
+  open data files. The one lifecycle statement CASA does make about a data product
+  is a warning that the format can change without notice.
+versioning:
+  scheme: none
+  current: null
+  detail: >-
+    No version segment in any URL, no version header, no dated release train and no
+    media-type versioning. The published paths (/JSON/combinedadweb.json,
+    /CSV/acrftreg.csv, /airworth/airwd/data/adweb.csv) are the entire contract and
+    always serve the current dataset.
+  breaking_change_notice: >-
+    None. CASA states on the AD data-files page that "the format of this file is
+    subject to change". There is no announcement channel, no changelog and no
+    versioned alternative to pin to, so a consumer's only defence is schema
+    validation on every ingest (see json-schema/).
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  detail: >-
+    No RFC 8594 Sunset or Deprecation header support, no deprecation policy page
+    and no announced retirement process for any data file or RPAS Platform feed.
+    No `Deprecation` pointer is wired into apis.yml, because no policy exists.
+  contractual_equivalent: >-
+    The closest thing CASA publishes to a deprecation right sits in the RPAS
+    Platform Terms and Conditions, clause 45.1: CASA "may terminate or reduce the
+    scope of this Agreement (including by reducing or removing any CASA Data or
+    Data Sources from the RPAS Platform) at any time, by giving the Software
+    Provider eight weeks' Notice", and under 45.2 the provider "will not be
+    entitled to any compensation". That is a contractual withdrawal right over a
+    partner integration, not a public API deprecation policy.
+deprecated_operations: []
+sla:
+  url: null
+  uptime_target: null
+  detail: >-
+    No service level agreement, uptime target or availability commitment is
+    published for the data files or the RPAS Platform. The RPAS Platform Operating
+    Rules set data REFRESH obligations (advisories at least every 15 minutes,
+    geospatial content at least every 24 hours) but these describe how current the
+    data must be, not how available the service must be.
+status_page: https://my.casa.gov.au/outage/
+status_page_detail:
+  url: https://my.casa.gov.au/outage/
+  verified: '2026-07-28'
+  http_status: 200
+  scope: >-
+    CASA online services (the myCASA portal and its 18 digital services), not the
+    open data files and not the RPAS Platform. Verified live: it renders "myCASA
+    outage - The myCASA portal is currently unavailable. CASA apologises for the
+    inconvenience. Find out more about scheduled outages." and links to
+    https://www.casa.gov.au/publications-and-resources/online-services and
+    https://www.casa.gov.au/about-us/contact-us.
+  caveat: >-
+    This is an outage notice page, not a component-level status dashboard. There is
+    no incident history, no RSS/JSON status feed and no per-service uptime record.
+    Nothing on it covers services.casa.gov.au or data.casa.rpasplatform.net.
+statutory_floor:
+  - regulation: CASR 47.030
+    effect: >-
+      Obliges CASA to publish or make available data relating to the Australian
+      civil aircraft register. A legal obligation to publish is a stronger
+      availability guarantee than most commercial SLAs, but it says nothing about
+      format stability, uptime or interface shape.
+  - regulation: CASR Part 39
+    effect: >-
+      Governs Airworthiness Directives, which are the underlying regulatory
+      instruments the AD data files publish.
+release_cadence:
+  aircraft_register: daily
+  airworthiness_directives: >-
+    Continuous as directives are issued. The upstream Last-Published header
+    reported 2026-07-27 when the file was retrieved on 2026-07-28. CASA separately
+    publishes Airworthiness Directives biweekly listings at
+    https://www.casa.gov.au/search-centre/airworthiness-directives-biweekly-listings
+  rpas_platform: >-
+    Onboarding of new providers for the ten trial aerodromes is PAUSED pending
+    Airservices Australia's Flight Information Management System (FIMS). New
+    applications are accepted only for Sydney Harbour AAA (R405A/R405B) and
+    airspace awareness maps. The platform is mid-transition, and that transition is
+    the most significant lifecycle fact about it.
+changelog:
+  api_changelog_published: false
+  nearest_equivalent: https://www.casa.gov.au/about-us/news-media-releases-and-speeches
+  note: >-
+    CASA's news and media releases feed covers regulatory and organisational news,
+    not data-file or interface changes. No `ChangeLog` pointer is wired, because no
+    API changelog exists.
+roadmap:
+  published: false
+  note: >-
+    No public roadmap for the data products. The only forward-looking commitment
+    located is CASA's statement that RPAS Platform onboarding resumes once
+    Airservices implements FIMS.

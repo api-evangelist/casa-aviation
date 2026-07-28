@@ -1,0 +1,179 @@
+generated: '2026-07-28'
+method: derived
+source: >-
+  review.yml (2026-07-28 probe round) plus CASA's published data-files pages and
+  the public RPAS Platform reference PDFs
+note: >-
+  CASA publishes no machine-readable API contract, so nothing here is derived
+  from a specification. Each assertion is derived from CASA's own published
+  documentation or from data actually observed on the wire. Standards that were
+  looked for and not found are recorded as conforms:false so the absence is
+  explicit rather than implied.
+contract_discovery:
+  note: >-
+    Re-run on 2026-07-28 (round 2) as an exhaustive sweep before re-asserting
+    "no machine-readable contract", against every baseURL host AND the docs and
+    portal hosts - not just the docs host. Nine candidate paths per host,
+    thirty-six probes, zero hits. This is recorded so the negative result is
+    auditable rather than assumed.
+  method: probed
+  paths_probed: [/openapi.json, /openapi.yaml, /swagger.json, /v1/openapi.json, /api-docs, /redoc, /graphql, /asyncapi.yaml, /llms.txt]
+  results:
+    - {host: https://services.casa.gov.au, outcome: 'all nine 404', note: 'Host answers normally with a browser User-Agent, so these are true 404s, not filtering.'}
+    - {host: https://my.casa.gov.au, outcome: 'all nine 404'}
+    - {host: https://data.casa.rpasplatform.net, outcome: 'all nine 403', note: 'Uniform GCS AccessDenied on every path including non-existent ones - carries no information either way.'}
+    - {host: https://www.casa.gov.au, outcome: 'all nine 000', note: 'No response to programmatic clients from the probe host; unchanged from round 1.'}
+  graphql: 'No /graphql surface on any host, so no introspection was possible.'
+  mcp: 'See mcp/casa-aviation-mcp.yml - POST /mcp on my.casa.gov.au returns "MCP is not enabled for this site" (Power Pages feature flag, not a CASA API).'
+  alternate_distribution:
+    - channel: data.gov.au (CKAN)
+      searched: '2026-07-28'
+      result: none
+      evidence: >-
+        The CKAN package_search API was queried for organisation
+        civil-aviation-safety-authority (count 0) and for "Civil Aviation Safety
+        Authority", "airworthiness directive" and "aircraft register"; no dataset
+        owned by CASA was returned. CASA does not publish its data products
+        through the Australian federal open-data portal, so there is no CKAN
+        DataStore API sitting behind the CASA files. services.casa.gov.au is the
+        only distribution channel.
+  conclusion: >-
+    Confirmed for a second consecutive round: CASA publishes no OpenAPI, no
+    Swagger, no GraphQL schema, no AsyncAPI, no MCP tool surface and no
+    llms.txt, on any host, and mirrors nothing to data.gov.au.
+standards:
+  - id: openapi
+    conforms: false
+    evidence: >-
+      No OpenAPI or Swagger document was located on casa.gov.au,
+      services.casa.gov.au or data.casa.rpasplatform.net. Re-probed exhaustively
+      on 2026-07-28 - see contract_discovery above.
+  - id: asyncapi
+    conforms: false
+    evidence: No AsyncAPI document and no webhook/event subscription surface published.
+  - id: json-schema
+    conforms: false
+    evidence: >-
+      No JSON Schema is published for combinedadweb.json; CASA states the file
+      format is subject to change.
+  - id: oauth2
+    conforms: false
+    evidence: >-
+      No OAuth 2.0 endpoints, metadata or scope documentation. The gated RPAS
+      Platform uses a CASA-issued service account instead.
+  - id: openid-connect
+    conforms: false
+    evidence: No /.well-known/openid-configuration on any CASA host probed.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: >-
+      No error contract is published for the data files or the RPAS Platform
+      feeds; responses are whole documents, not a problem+json envelope.
+  - id: rfc9116-security-txt
+    conforms: false
+    evidence: No /.well-known/security.txt located on casa.gov.au (see well-known/).
+  - id: rfc8594-sunset-header
+    conforms: false
+    evidence: No deprecation or Sunset header policy is published.
+  - id: icao-doc-8643
+    conforms: true
+    evidence: >-
+      ICAO Doc 8643 aircraft type designators are carried as a field in the
+      Australian Civil Aircraft Register data file and on the aircraft register
+      record pages (for example type designator RV6).
+    scope: casa-aviation:casa-aircraft-register-data
+  - id: rfc7946-geojson
+    conforms: true
+    evidence: >-
+      The RPAS Platform CASA Advisories feed is published as
+      /casa/data/advisories.geojson in the Operating Rules Attachment A data
+      table.
+    scope: casa-aviation:casa-rpas-digital-platform
+  - id: rfc9110-conditional-requests
+    conforms: true
+    evidence: >-
+      VERIFIED 2026-07-28. services.casa.gov.au serves both ETag and
+      Last-Modified on /CSV/acrftreg.csv and /JSON/combinedadweb.json, and
+      honours both If-None-Match and If-Modified-Since, returning HTTP 304 with a
+      zero-byte body. CASA documents none of this; it is the most useful
+      transport behaviour on the whole surface. See conditional_requests in
+      conventions/casa-aviation-conventions.yml.
+    scope: casa-aviation:casa-aircraft-register-data, casa-aviation:casa-airworthiness-directives-data
+  - id: rfc9110-range-requests
+    conforms: true
+    evidence: >-
+      VERIFIED 2026-07-28. "Range: bytes=0-200" against /CSV/acrftreg.csv
+      returned HTTP 206 with 201 bytes. HEAD is also supported (200 with the full
+      header set). This is the only way to read a header row without pulling the
+      whole multi-megabyte file.
+    scope: casa-aviation:casa-aircraft-register-data
+  - id: http-content-negotiation-compression
+    conforms: false
+    evidence: >-
+      VERIFIED 2026-07-28. Requests carrying "Accept-Encoding: gzip, deflate, br"
+      returned no Content-Encoding and the full uncompressed Content-Length on
+      acrftreg.csv (6,995,128 bytes), combinedadweb.json (7,677,046) and
+      folder.csv (50,457). The host never compresses. CASA's substitute is the
+      pre-zipped acrftreg.zip; there is no compressed AD JSON.
+  - id: rfc8259-json
+    conforms: true
+    evidence: >-
+      combinedadweb.json and the RPAS Platform notifications.json feed are JSON.
+      combinedadweb.json was retrieved and parsed on 2026-07-28 - a bespoke
+      {"DATA":[...]} envelope with CASA field names.
+  - id: rfc4180-csv
+    conforms: partial
+    evidence: >-
+      acrftreg.csv, adweb.csv and folder.csv are comma-delimited text files.
+      CASA describes acrftreg.csv as comma-delimited but publishes no formal
+      dialect statement, quoting rules or header contract, so RFC 4180
+      conformance is asserted only as observed shape, not as a CASA claim.
+  - id: interuss-platform
+    conforms: partial
+    evidence: >-
+      The RPAS Platform Operating Rules state CASA's automated compliance test
+      suite was "developed using the open-source InterUSS Platform" and that the
+      RPAS Platform "acts as the Test Director, managing application initiated
+      and CASA initiated automated testing via its integration of the InterUSS
+      test suite". This governs conformance TESTING of connected applications,
+      not the data contract itself, so it is recorded as partial.
+    scope: casa-aviation:casa-rpas-digital-platform
+  - id: casr-part-47
+    conforms: true
+    evidence: >-
+      CASR 47.030 obliges CASA to publish or make available data relating to the
+      Australian civil aircraft register; the register data file is that
+      publication. Part 47 defines the record content in law.
+    scope: casa-aviation:casa-aircraft-register-data
+  - id: casr-part-39
+    conforms: true
+    evidence: >-
+      CASR Part 39 governs Airworthiness Directives; the AD listing files and
+      the individually addressable AD PDFs are that regulatory record.
+    scope: casa-aviation:casa-airworthiness-directives-data
+  - id: asd-essential-eight
+    conforms: partial
+    evidence: >-
+      CASA requires RPAS Platform applicants to demonstrate compliance with
+      applicable Australian Government security and privacy requirements
+      including the ASD Essential Eight. This is an obligation CASA imposes on
+      connecting software providers, not a certification CASA publishes about
+      itself.
+    scope: casa-aviation:casa-rpas-digital-platform
+  - id: opentravel-ota
+    conforms: false
+    evidence: >-
+      Not applicable. CASA is a safety regulator with no travel-distribution
+      position - no GDS, NDC, channel-manager or OTA surface exists.
+  - id: iata-ndc
+    conforms: false
+    evidence: Not applicable - see opentravel-ota.
+certifications_published: []
+compliance_program_published: false
+compliance_note: >-
+  CASA publishes no trust centre and no third-party security certifications
+  (no SOC 2, ISO 27001, PCI DSS, HIPAA or FedRAMP claims were located). As an
+  Australian Commonwealth agency its assurance posture is expressed through
+  Australian Government frameworks (PSPF, ASD Essential Eight) applied to its
+  suppliers rather than through published commercial certifications. No
+  `Compliance` pointer is emitted, because no compliance program page exists.

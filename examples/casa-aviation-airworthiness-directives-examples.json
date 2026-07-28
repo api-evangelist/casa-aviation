@@ -1,0 +1,99 @@
+{
+  "x-apievangelist": {
+    "generated": "2026-07-28",
+    "method": "searched",
+    "source": "https://services.casa.gov.au/JSON/combinedadweb.json",
+    "retrieved": "2026-07-28",
+    "upstream_last_modified": "Mon, 27 Jul 2026 00:45:18 GMT",
+    "upstream_etag": "\"fde7b32611ddd1:0\"",
+    "upstream_bytes": 7677046,
+    "record_count_in_file": 17738,
+    "schema": "json-schema/casa-aviation-airworthiness-directive.schema.json",
+    "schema_validation": "All four records below were validated on 2026-07-28 against $defs/AirworthinessDirective in that schema and passed. This FILE is deliberately not a valid combinedadweb.json document - it carries x-apievangelist provenance keys the schema's additionalProperties:false forbids at the document level. Validate the members of DATA, not this wrapper.",
+    "note": "CASA publishes no examples. These four records are VERBATIM entries pulled from the live combinedadweb.json on 2026-07-28 - not synthesised. They were chosen to cover every value of Status (Active, Cancelled, Urgent), both the CASA-issued and the adopted-foreign-directive cases, and both the populated-date and empty-string-date shapes. No field has been altered. Airworthiness Directives are regulatory instruments about aircraft types and carry no personal data.",
+    "envelope": "The live file wraps every record in a single top-level {\"DATA\": [...]} array. The array below is that DATA array, sampled."
+  },
+  "DATA": [
+    {
+      "ADName": "Electrical Switch - CANCELLED",
+      "ADNUMBER": "1",
+      "ADIssueNumber": "NK",
+      "ADFILE": "GEN-001.pdf",
+      "FOLDERNAME": "GEN",
+      "GROUPTITLE": "AIRGEN",
+      "EffectiveDate": "",
+      "Authority": "CASA",
+      "PublishedDate": "",
+      "ID": 7773,
+      "Status": "Cancelled",
+      "SeriesName": "Aircraft - General",
+      "SeriesNumber": "AD/GENERAL/",
+      "SeriesOrder": "1.00",
+      "GROUPS": "AIRGEN, ROTOR, UNDER, OVER",
+      "GroupDesc": "Aircraft General"
+    },
+    {
+      "ADName": "Emergency Exits",
+      "ADNUMBER": "37 Amdt 10",
+      "ADIssueNumber": null,
+      "ADFILE": "GEN-037.pdf",
+      "FOLDERNAME": "GEN",
+      "GROUPTITLE": "AIRGEN",
+      "EffectiveDate": "2016-02-26",
+      "Authority": "CASA",
+      "PublishedDate": "2016-02-22",
+      "ID": 7809,
+      "Status": "Active",
+      "SeriesName": "Aircraft - General",
+      "SeriesNumber": "AD/GENERAL/",
+      "SeriesOrder": "1.00",
+      "GROUPS": "AIRGEN, ROTOR, UNDER, OVER",
+      "GroupDesc": "Aircraft General"
+    },
+    {
+      "ADName": "Parts Manufactured by Croydon Aircraft Company",
+      "ADNUMBER": "DCA/GEN/36A",
+      "ADIssueNumber": null,
+      "ADFILE": "DCA-GEN-36A.pdf",
+      "FOLDERNAME": "GEN",
+      "GROUPTITLE": "AIRGEN",
+      "EffectiveDate": "2018-03-09",
+      "Authority": "NZ",
+      "PublishedDate": "2018-03-07",
+      "ID": 14723,
+      "Status": "Urgent",
+      "SeriesName": "Aircraft - General",
+      "SeriesNumber": "AD/GENERAL/",
+      "SeriesOrder": "1.00",
+      "GROUPS": "AIRGEN, ROTOR, UNDER, OVER",
+      "GroupDesc": "Aircraft General"
+    },
+    {
+      "ADName": "Portable Halon 1211 Fire Extinguishers",
+      "ADNUMBER": "2009-0251-E",
+      "ADIssueNumber": null,
+      "ADFILE": "2009-0251-E.pdf",
+      "FOLDERNAME": "FPE",
+      "GROUPTITLE": "EQUIP",
+      "EffectiveDate": "2009-11-26",
+      "Authority": "EASA",
+      "PublishedDate": "2009-11-26",
+      "ID": 11904,
+      "Status": "Active",
+      "SeriesName": "Fire Protection Equipment",
+      "SeriesNumber": "AD/FPE/",
+      "SeriesOrder": "10.00",
+      "GROUPS": "EQUIP",
+      "GroupDesc": "Equipment"
+    }
+  ],
+  "x-apievangelist-document-urls": {
+    "note": "Each record above resolves to a real AD PDF using the template in conventions/casa-aviation-conventions.yml: lower-case GROUPTITLE and FOLDERNAME, keep ADFILE case. All four were verified 200 on 2026-07-28.",
+    "urls": [
+      "https://services.casa.gov.au/airworth/airwd/ADfiles/airgen/gen/GEN-001.pdf",
+      "https://services.casa.gov.au/airworth/airwd/ADfiles/airgen/gen/GEN-037.pdf",
+      "https://services.casa.gov.au/airworth/airwd/ADfiles/airgen/gen/DCA-GEN-36A.pdf",
+      "https://services.casa.gov.au/airworth/airwd/ADfiles/equip/fpe/2009-0251-E.pdf"
+    ]
+  }
+}

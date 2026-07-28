@@ -1,0 +1,119 @@
+generated: '2026-07-28'
+method: probed
+source: live HTTP probes of CASA hosts, 2026-07-28
+format: none
+format_note: >-
+  CASA publishes no error reference and no machine-readable error contract. There
+  is no RFC 9457 application/problem+json, no JSON error envelope and no error code
+  registry. This catalogue records the error responses actually observed on the
+  wire so an integrator can branch on them correctly - it is derived from probes,
+  not from a CASA document.
+warning: >-
+  The single most important fact here is that CASA's three hosts fail in three
+  different formats: HTML from services, XML from the RPAS bucket, JSON from the
+  myCASA portal. Never assume an error body is JSON, and never parse an error body
+  by content-type sniffing the success path.
+problems:
+  - status: 403
+    host: services.casa.gov.au
+    condition: Request sent without a browser-style User-Agent
+    body_format: (varies)
+    meaning: >-
+      Edge/bot filtering, NOT authentication and NOT a rate limit. The same URL
+      returns 200 with a browser User-Agent. Every services.casa.gov.au file was
+      recorded as 403 in the previous enrichment round for exactly this reason.
+    remediation: >-
+      Set a descriptive User-Agent identifying your application and retry. Do not
+      interpret this as a permission problem or back off exponentially.
+    observed: '2026-07-28'
+  - status: 404
+    host: services.casa.gov.au
+    condition: Unknown path, or an AD PDF path with the wrong letter case
+    body_format: text/html
+    body_shape: >-
+      Microsoft IIS default error page, 1,245 bytes, title "404 - File or directory
+      not found." No JSON, no error code, no machine-readable field.
+    meaning: The object does not exist at that path.
+    remediation: >-
+      For AD PDFs, lower-case both the group and folder segments while preserving
+      the filename case - see document_addressing in
+      conventions/casa-aviation-conventions.yml. A 404 with a 1,245-byte HTML body
+      is the signature of a case error, not a missing directive.
+    observed: '2026-07-28'
+  - status: 403
+    host: data.casa.rpasplatform.net
+    condition: Any request without valid CASA service-account credentials
+    body_format: application/xml
+    body_shape: >-
+      <?xml version='1.0' encoding='UTF-8'?><Error><Code>AccessDenied</Code><Message>Access
+      denied.</Message></Error>
+    meaning: >-
+      Google Cloud Storage deny-by-default. Response headers carry server:
+      UploadServer and x-guploader-uploadid, confirming the RPAS Platform data
+      feeds are GCS bucket objects rather than a bespoke API tier.
+    remediation: >-
+      There is no self-serve remediation. Access requires a CASA-issued service
+      account obtained through the RPAS Platform onboarding process - see
+      authentication/casa-aviation-authentication.yml.
+    note: >-
+      This 403 is returned for EVERY path including paths that do not exist, so a
+      403 here carries no information about whether an endpoint is real. Endpoint
+      names come from the RPAS Platform Operating Rules, not from probing.
+    observed: '2026-07-28'
+  - status: 500
+    host: my.casa.gov.au
+    condition: GET /.well-known/oauth-authorization-server
+    body_format: application/json
+    body_shape: >-
+      {"error":"server_error","error_description":"MCP is not enabled for this
+      site","timestamp":"..."}
+    meaning: >-
+      Microsoft Power Pages returning its disabled-MCP error. Not a CASA API error
+      and not an authorization server. Recorded so it is not mistaken for one.
+    remediation: None. The endpoint is not intended for public use.
+    observed: '2026-07-28'
+  - status: 000
+    host: www.casa.gov.au
+    condition: Any programmatic request from the API Evangelist probe host
+    body_format: none
+    body_shape: >-
+      No response. HTTP/2 closes the stream with INTERNAL_ERROR; HTTP/1.1 times out
+      (curl exit 28). A public text-rendering proxy also failed with "Stream error
+      in the HTTP/2 framing layer".
+    meaning: >-
+      The documentation host does not serve non-browser clients from this network
+      position. It is not known whether this is geographic, reputational or
+      protocol-level.
+    remediation: >-
+      Read documentation through a browser. This does not affect the data hosts -
+      services.casa.gov.au serves files normally.
+    observed: '2026-07-28'
+data_level_errors:
+  note: >-
+    Because the transport carries no error semantics, the real failure modes on
+    this surface are data-level. These are the ones that bite.
+  cases:
+    - case: Empty-string dates
+      detail: >-
+        EffectiveDate is empty in 10,893 of 17,738 AD records and PublishedDate in
+        10,817. Date parsers that assume a value will throw on the majority of the
+        file.
+    - case: Null ADIssueNumber
+      detail: Null in 4,566 of 17,738 records; also carries the literal string "NK" for not known.
+    - case: UTF-8 BOM on acrftreg.csv
+      detail: >-
+        The first column parses as "﻿Mark" unless the file is read with
+        encoding utf-8-sig. Silent, and it breaks the primary key.
+    - case: Divergent date formats between products
+      detail: >-
+        AD files use ISO YYYY-MM-DD; the register CSV uses Australian DD/MM/YYYY.
+        Parsing the register with a US MM/DD/YYYY assumption silently corrupts
+        every day-of-month above 12.
+    - case: Authority spelled two ways
+      detail: >-
+        The Authority field carries both "FAA" (1,819 records) and "USA - FAA" (58
+        records) for the same regulator. Grouping by raw value undercounts.
+    - case: Silent format change
+      detail: >-
+        CASA states the AD JSON format is subject to change and gives no notice
+        channel. Validate against json-schema/ on every ingest.

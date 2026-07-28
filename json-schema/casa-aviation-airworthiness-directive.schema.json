@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/casa-aviation/refs/heads/main/json-schema/casa-aviation-airworthiness-directive.schema.json",
+  "title": "CASA Airworthiness Directive record (combinedadweb.json)",
+  "description": "Derived by API Evangelist from the live CASA file https://services.casa.gov.au/JSON/combinedadweb.json, retrieved 2026-07-28 (7,677,046 bytes, 17,738 records). CASA publishes no schema for this file and states its format is subject to change, so this document describes the structure as observed on that date. It is not published or endorsed by CASA.",
+  "x-apievangelist": {
+    "generated": "2026-07-28",
+    "method": "derived",
+    "source": "https://services.casa.gov.au/JSON/combinedadweb.json",
+    "observed_records": 17738,
+    "note": "Every one of the 17,738 observed records carried all 16 properties, so all 16 are marked required. Enumerations were taken from the complete observed value set; CASA does not publish them as closed enums."
+  },
+  "type": "object",
+  "properties": {
+    "DATA": {
+      "type": "array",
+      "description": "The full list of current Australian Airworthiness Directives. This is the only top-level key observed.",
+      "items": { "$ref": "#/$defs/AirworthinessDirective" }
+    }
+  },
+  "required": ["DATA"],
+  "additionalProperties": false,
+  "$defs": {
+    "AirworthinessDirective": {
+      "type": "object",
+      "title": "Airworthiness Directive",
+      "properties": {
+        "ID": {
+          "type": "integer",
+          "description": "Opaque CASA record identifier. Unique across all 17,738 observed records. Not the AD citation number and not stable across format changes.",
+          "examples": [7773]
+        },
+        "ADName": {
+          "type": "string",
+          "description": "Title of the directive. Cancelled directives are commonly suffixed ' - CANCELLED'.",
+          "examples": ["Electrical Switch - CANCELLED", "Fuel System Ventilation and Drainage Modification"]
+        },
+        "ADNUMBER": {
+          "type": "string",
+          "description": "AD number within its series, as a string. May carry an amendment suffix.",
+          "examples": ["1", "100 Amdt 1", "4 Amdt 4"]
+        },
+        "ADIssueNumber": {
+          "type": ["string", "null"],
+          "description": "Issue reference, typically 'n/YYYY'. 'NK' means not known. Null in 4,566 of 17,738 observed records.",
+          "examples": ["NK", "7/1986", "13/2003"]
+        },
+        "ADFILE": {
+          "type": "string",
+          "description": "Filename of the AD PDF. Combines with FOLDERNAME and GROUPTITLE to address the document (see x-apievangelist.url_template).",
+          "examples": ["GEN-001.pdf", "B747-100.pdf", "750XL-001.pdf"]
+        },
+        "FOLDERNAME": {
+          "type": "string",
+          "description": "Aircraft/equipment type folder. 425 distinct values observed, one per AD series.",
+          "examples": ["GEN", "B747", "750XL"]
+        },
+        "GROUPTITLE": {
+          "type": "string",
+          "description": "Primary group the series sits in. Nine distinct values observed across the whole file.",
+          "enum": ["AIRGEN", "ENGGEN", "EQUIP", "LTA", "OVER", "PISTON", "ROTOR", "TURBINE", "UNDER"],
+          "examples": ["AIRGEN", "OVER"]
+        },
+        "GROUPS": {
+          "type": "string",
+          "description": "Comma-and-space separated list of every group the series applies to. Not a JSON array.",
+          "examples": ["AIRGEN, ROTOR, UNDER, OVER", "OVER"]
+        },
+        "GroupDesc": {
+          "type": "string",
+          "description": "Human-readable description of the group.",
+          "examples": ["Aircraft General", "Engine General"]
+        },
+        "SeriesName": {
+          "type": "string",
+          "description": "Human-readable series name.",
+          "examples": ["Aircraft - General", "Engines - General"]
+        },
+        "SeriesNumber": {
+          "type": "string",
+          "description": "AD series citation prefix, trailing slash included. 425 distinct values observed. Concatenated with ADNUMBER this yields the public citation, e.g. 'AD/B747/' + '100' = AD/B747/100.",
+          "examples": ["AD/GENERAL/", "AD/B747/", "AD/750XL/"]
+        },
+        "SeriesOrder": {
+          "type": "string",
+          "description": "Sort key within the series, carried as a decimal string rather than a number.",
+          "examples": ["1.00"]
+        },
+        "Authority": {
+          "type": "string",
+          "description": "Issuing authority. CASA adopts directives from foreign regulators, so this is not always CASA. Observed distribution: CASA 11,940; EASA 2,826; FAA 1,819; Canada 688; Brazil 133; Japan 64; 'USA - FAA' 58; France 53; NZ CAA 41; Switzerland 28; plus a long tail. Note that FAA appears under two spellings.",
+          "examples": ["CASA", "EASA", "FAA", "Canada"]
+        },
+        "Status": {
+          "type": "string",
+          "description": "Lifecycle state of the directive. Observed distribution: Active 12,993; Cancelled 4,326; Urgent 419.",
+          "enum": ["Active", "Cancelled", "Urgent"]
+        },
+        "EffectiveDate": {
+          "type": "string",
+          "description": "Date the directive takes effect, ISO 8601 date or empty string. Empty in 10,893 of 17,738 observed records, so it must not be treated as required data.",
+          "anyOf": [
+            { "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+            { "const": "" }
+          ],
+          "examples": ["2010-12-01", "2016-02-26", ""]
+        },
+        "PublishedDate": {
+          "type": "string",
+          "description": "Date the directive was published, ISO 8601 date or empty string. Empty in 10,817 of 17,738 observed records.",
+          "anyOf": [
+            { "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+            { "const": "" }
+          ],
+          "examples": ["2010-11-30", "2016-02-22", ""]
+        }
+      },
+      "required": [
+        "ID", "ADName", "ADNUMBER", "ADIssueNumber", "ADFILE", "FOLDERNAME",
+        "GROUPTITLE", "GROUPS", "GroupDesc", "SeriesName", "SeriesNumber",
+        "SeriesOrder", "Authority", "Status", "EffectiveDate", "PublishedDate"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

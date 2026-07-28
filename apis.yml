@@ -66,6 +66,15 @@ apis:
         url: https://services.casa.gov.au/airworth/airwd/data/adweb.csv
       - type: CSV
         url: https://services.casa.gov.au/airworth/airwd/data/folder.csv
+      - type: JSONSchema
+        url: json-schema/casa-aviation-airworthiness-directive.schema.json
+      - type: JSONSchema
+        url: json-schema/casa-aviation-ad-listing-row.schema.json
+      - type: Examples
+        url: examples/casa-aviation-airworthiness-directives-examples.json
+      - type: AgentSkill
+        name: Look up Australian Airworthiness Directives and fetch the AD document
+        url: skills/casa-aviation-lookup-airworthiness-directives.md
   - aid: casa-aviation:casa-aircraft-register-data
     name: Australian Civil Aircraft Register Data Files
     description: >-
@@ -103,6 +112,15 @@ apis:
         url: https://services.casa.gov.au/CSV/acrftreg.zip
       - type: Documentation
         url: https://www.casa.gov.au/search-centre/aircraft-register
+      - type: JSONSchema
+        url: json-schema/casa-aviation-aircraft-register-row.schema.json
+      - type: Examples
+        url: examples/casa-aviation-aircraft-register-examples.json
+      - type: GettingStarted
+        url: https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft/downloading-and-using-our-data-files
+      - type: AgentSkill
+        name: Ingest the Australian civil aircraft register
+        url: skills/casa-aviation-ingest-aircraft-register.md
   - aid: casa-aviation:casa-rpas-digital-platform
     name: CASA RPAS Digital Platform API
     description: >-
@@ -145,15 +163,54 @@ apis:
         url: https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-terms-conditions.pdf
       - type: Documentation
         url: https://www.casa.gov.au/knowyourdrone/drone-safety-apps
+      - type: AgentSkill
+        name: Qualify for CASA RPAS Digital Platform access
+        url: skills/casa-aviation-rpas-platform-access.md
 common:
+  - type: Vocabulary
+    url: vocabulary/casa-aviation-vocabulary.yml
+  - type: Examples
+    url: examples/casa-aviation-aircraft-register-examples.json
+  - type: AgentSkill
+    url: skills/_index.yml
+  - type: GettingStarted
+    url: https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft/downloading-and-using-our-data-files
+  - type: DomainSecurity
+    url: security/casa-aviation-domain-security.yml
+  - type: VulnerabilityDisclosure
+    url: security/casa-aviation-vulnerability-disclosure.yml
+  - type: Security
+    url: https://www.casa.gov.au/about-us/reporting-and-accountability/external-security-vulnerability-disclosure-program
+  - type: Authentication
+    url: authentication/casa-aviation-authentication.yml
+  - type: Conventions
+    url: conventions/casa-aviation-conventions.yml
+  - type: Lifecycle
+    url: lifecycle/casa-aviation-lifecycle.yml
+  - type: StatusPage
+    url: https://my.casa.gov.au/outage/
+  - type: Conformance
+    url: conformance/casa-aviation-conformance.yml
+  - type: ErrorCatalog
+    url: errors/casa-aviation-problem-types.yml
+  - type: DataModel
+    url: data-model/casa-aviation-data-model.yml
+  - type: Packages
+    url: packages/casa-aviation-packages.yml
+  - type: LLMsTxt
+    url: llms/casa-aviation-llms.txt
   - type: Website
     url: https://www.casa.gov.au/
   - type: Documentation
     url: https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft
   - type: Portal
     url: https://my.casa.gov.au/
+  - type: Support
+    url: https://www.casa.gov.au/about-us/contact-us
   - type: TermsOfService
     url: https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-terms-conditions.pdf
+  - type: PrivacyPolicy
+    url: https://www.casa.gov.au/about-us/about-website/privacy-statement
   - type: Blog
     url: https://www.casa.gov.au/about-us/news-media-releases-and-speeches
   - type: BlogRSS

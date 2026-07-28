@@ -1,0 +1,221 @@
+generated: '2026-07-28'
+method: derived
+source: >-
+  live probes of services.casa.gov.au and data.casa.rpasplatform.net on 2026-07-28,
+  plus CASA's published data-files pages and the RPAS Platform Operating Rules
+summary: >-
+  CASA has no REST API and therefore no REST conventions. What it has is a
+  file-distribution contract: fixed, unversioned URLs that always serve the current
+  full dataset. This document captures the semantics an integrator actually needs -
+  transport, encodings, identifiers, the AD document URL template, refresh cadence
+  and the client behaviours the hosts require. Cross-links: errors/, lifecycle/,
+  authentication/, json-schema/, data-model/.
+interaction_model:
+  style: bulk-file-download
+  description: >-
+    Every open CASA data product is a single whole-file GET. There are no query
+    parameters, no per-record endpoints, no filtering and no partial reads by
+    field. The client downloads the entire current dataset and filters locally.
+  operations_available: [GET]
+  writes_supported: false
+authentication:
+  open_files: none
+  rpas_platform: CASA-issued service account
+  detail: authentication/casa-aviation-authentication.yml
+pagination:
+  supported: false
+  rationale: >-
+    Not applicable to whole-file distribution. The AD JSON returns all 17,738
+    records in one 7.3MB document; the register CSV returns all 16,660 currently
+    registered Australian aircraft (verified by full parse on 2026-07-28) in one
+    6.7MB file. Plan for full-file memory or streaming parsing rather than paging.
+  range_requests:
+    supported: true
+    evidence: >-
+      services.casa.gov.au honours HTTP Range requests (verified 2026-07-28 with
+      `-r 0-1200` against acrftreg.csv, which returned only the requested bytes).
+      This is the only way to read a header row without pulling the whole file.
+filtering_and_sorting:
+  supported: false
+  note: Filter client-side on the fields documented in json-schema/.
+idempotency:
+  supported: false
+  rationale: >-
+    There are no write operations, so there is no idempotency contract to
+    document. No Idempotency-Key header or equivalent exists anywhere on the CASA
+    surface. No `Idempotency` pointer is wired into apis.yml - emitting one would
+    be false.
+  safe_retry: >-
+    Every operation is a GET and therefore naturally safe to retry. Retries should
+    be spaced; see rate_limiting below.
+versioning:
+  scheme: none
+  detail: >-
+    URLs carry no version segment and no version header. The path IS the contract:
+    /JSON/combinedadweb.json, /CSV/acrftreg.csv. CASA explicitly warns on the AD
+    data-files page that "the format of this file is subject to change", so a
+    breaking change arrives silently at the same URL. Validate against
+    json-schema/ on every ingest rather than trusting the shape.
+  media_type_versioning: false
+content_types:
+  - {path: /JSON/combinedadweb.json, content_type: application/json, bytes_observed: 7677046}
+  - {path: /CSV/acrftreg.csv, content_type: application/octet-stream, bytes_observed: 6995128, note: "Served as octet-stream, not text/csv. Do not content-type sniff."}
+  - {path: /CSV/acrftreg.zip, content_type: application/x-zip-compressed, bytes_observed: 1346094}
+  - {path: /airworth/airwd/data/adweb.csv, content_type: application/octet-stream, bytes_observed: 2445841}
+  - {path: /airworth/airwd/data/folder.csv, content_type: application/octet-stream, bytes_observed: 50457}
+  - {path: /CSV/availablemarks.pdf, content_type: application/pdf, bytes_observed: 251717}
+encoding:
+  json: UTF-8, single top-level "DATA" array, no envelope metadata, no record count
+  csv:
+    delimiter: ','
+    header_row: true
+    quoting: >-
+      adweb.csv and folder.csv quote every field. acrftreg.csv does not quote
+      routinely. Use a real CSV parser for both.
+    byte_order_mark: >-
+      acrftreg.csv begins with a UTF-8 BOM. Strip it or open with encoding
+      'utf-8-sig', or the first column name parses as "﻿Mark" instead of
+      "Mark". This is the single most common integration bug on this file.
+date_formats:
+  json: >-
+    ISO 8601 (YYYY-MM-DD) in EffectiveDate and PublishedDate, OR an empty string.
+    Empty is common - 10,893 of 17,738 records have no EffectiveDate.
+  csv_register: >-
+    DD/MM/YYYY (Australian order) in regholdCommdate, regopCommdate, Datefirstreg,
+    Regexpirydate and suspenddate. Do NOT parse these as US MM/DD/YYYY.
+  inconsistency_warning: >-
+    The two products use different date formats. This is a real inconsistency in
+    CASA's publishing, not a documentation error.
+null_handling: >-
+  JSON uses both null (ADIssueNumber, 4,566 records) and the empty string
+  (EffectiveDate, PublishedDate) for absent values. CSV uses the empty string only.
+  Treat "" and null as equivalent absence.
+identifiers:
+  portable:
+    - {id: registration mark, example: 'VH-ABC (the "Mark" column carries "ABC" without the VH- prefix)', note: Australian nationality mark, portable to any aviation dataset}
+    - {id: ICAO Doc 8643 type designator, example: SR22, note: joins cleanly to FAA, EASA, ADS-B, MRO and insurance datasets}
+    - {id: manufacturer serial number, example: '10637'}
+    - {id: type certificate number, example: A00009CH}
+    - {id: AD citation, example: AD/B747/100, note: 'formed by concatenating SeriesNumber ("AD/B747/") and ADNUMBER ("100")'}
+  vendor_internal:
+    - {id: CASA AD record ID, example: 7773, note: "Opaque integer. Verified stable across both the JSON and CSV projections of the AD list on 2026-07-28, so the two files join on it."}
+    - {id: FOLDERNAME/ADFILE pair, example: 'GEN + GEN-001.pdf', note: addresses the AD document}
+document_addressing:
+  ad_pdf_url_template: >-
+    https://services.casa.gov.au/airworth/airwd/ADfiles/{GROUPTITLE|lowercase}/{FOLDERNAME|lowercase}/{ADFILE}
+  verified: '2026-07-28'
+  verified_examples:
+    - {grouptitle: AIRGEN, foldername: GEN, adfile: GEN-001.pdf, url: 'https://services.casa.gov.au/airworth/airwd/ADfiles/airgen/gen/GEN-001.pdf', status: 200}
+    - {grouptitle: OVER, foldername: B747, adfile: B747-100.pdf, url: 'https://services.casa.gov.au/airworth/airwd/ADfiles/over/b747/B747-100.pdf', status: 200}
+    - {grouptitle: UNDER, foldername: '750XL', adfile: 750XL-001.pdf, url: 'https://services.casa.gov.au/airworth/airwd/ADfiles/under/750xl/750XL-001.pdf', status: 200}
+  note: >-
+    CASA documents that AD PDFs live under /airworth/airwd/ADfiles/ but does not
+    publish the template. Both path segments must be lower-cased while the filename
+    keeps its original case; the wrong case returns a 404 HTML page, not a 404 JSON
+    error. This template was derived and verified against three records spanning
+    three different groups.
+refresh_cadence:
+  aircraft_register: daily (CASA states the file is updated daily)
+  airworthiness_directives: >-
+    Continuous as directives are issued; the upstream Last-Published header
+    reported 2026-07-27 when the file was retrieved on 2026-07-28. CASA also
+    publishes biweekly AD listings on its website.
+  rpas_advisories: at least every 15 minutes (RPAS Platform Operating Rules, Attachment A)
+  rpas_geospatial: at least every 24 hours (RPAS Platform Operating Rules, Attachment A)
+  polling_guidance: >-
+    Poll no more than once per day for the register and the AD files, and make
+    that poll a CONDITIONAL request - see conditional_requests below, which is
+    now verified rather than advisory. A conditional poll costs zero bytes when
+    nothing has changed, so there is no reason to download 14MB a day.
+conditional_requests:
+  supported: true
+  verified: '2026-07-28'
+  method: probed
+  summary: >-
+    VERIFIED in the 2026-07-28 enrichment round. services.casa.gov.au serves both
+    validators on both open products and honours both conditional request
+    headers, returning a real 304 with a zero-byte body. This is the single most
+    useful transport fact about the CASA surface and CASA documents it nowhere.
+  validators_served:
+    - path: /CSV/acrftreg.csv
+      last_modified: 'Mon, 27 Jul 2026 22:16:25 GMT'
+      etag: '"6756290151edd1:0"'
+      content_length: 6995128
+    - path: /JSON/combinedadweb.json
+      last_modified: 'Mon, 27 Jul 2026 00:45:18 GMT'
+      etag: '"fde7b32611ddd1:0"'
+      content_length: 7677046
+  probes:
+    - {request: 'GET /CSV/acrftreg.csv with If-None-Match: "6756290151edd1:0"', response: 304, bytes: 0}
+    - {request: 'GET /CSV/acrftreg.csv with If-Modified-Since: Mon, 27 Jul 2026 22:16:25 GMT', response: 304, bytes: 0}
+    - {request: 'GET /JSON/combinedadweb.json with If-None-Match: "fde7b32611ddd1:0"', response: 304, bytes: 0}
+  etag_shape: >-
+    Microsoft IIS weak-looking strong ETag of the form "<hex>:0". Store it
+    verbatim including the quotes and send it back unmodified.
+  freshness_signal: >-
+    Last-Modified is the ONLY freshness signal on the file. The AD JSON carried a
+    Last-Modified one day older than the register on 2026-07-28, which matches
+    CASA's stated cadences (register daily, ADs as issued). There is no version
+    field, no generated-at timestamp and no record count inside either document.
+  recommended_ingest_loop: >-
+    Store the ETag and Last-Modified after every successful 200. On the next
+    poll send If-None-Match (and If-Modified-Since as a fallback); on 304 do
+    nothing; on 200 re-validate against json-schema/ before you replace your
+    copy, because CASA warns the format can change without notice.
+transfer_characteristics:
+  verified: '2026-07-28'
+  head_supported: true
+  head_note: HEAD /JSON/combinedadweb.json returned 200 with the full header set - use it to read validators without a body.
+  range_supported: true
+  range_note: 'GET /CSV/acrftreg.csv with Range: bytes=0-200 returned 206 and 201 bytes. This is how you read the header row without pulling 6.7MB.'
+  content_encoding:
+    gzip_offered: false
+    verified: >-
+      Requests to /CSV/acrftreg.csv and /JSON/combinedadweb.json with
+      "Accept-Encoding: gzip, deflate, br" returned no Content-Encoding header
+      and the full uncompressed Content-Length (6,995,128 and 7,677,046 bytes).
+      Same result on /airworth/airwd/data/folder.csv. The host does not compress
+      these responses.
+    consequence: >-
+      For the register, prefer /CSV/acrftreg.zip (1.3MB) over the CSV (6.7MB) -
+      pre-zipping is CASA's substitute for transport compression. There is no
+      compressed equivalent of combinedadweb.json, so the AD file always costs
+      7.3MB on the wire when it has actually changed.
+rate_limiting:
+  published_limits: none
+  signalling: >-
+    No X-RateLimit / RateLimit headers were observed on any CASA host, and no
+    quota, throttle or fair-use statement is published for the open files.
+  guidance: >-
+    Absent published limits, treat these as courtesy-access government files:
+    one full download per day per product, not per-request polling.
+client_requirements:
+  user_agent: >-
+    REQUIRED. services.casa.gov.au returns HTTP 403 to unadorned programmatic
+    clients (plain curl) and 200 to a browser-style User-Agent. This is an edge
+    filter, not authentication. Set a descriptive User-Agent that identifies your
+    application.
+  www_host_note: >-
+    www.casa.gov.au did not answer any programmatic request from the API Evangelist
+    probe host on 2026-07-28 (HTTP/2 stream INTERNAL_ERROR, HTTP/1.1 timeout).
+    Documentation pages may need to be read through a browser. The DATA hosts are
+    unaffected.
+  compression: >-
+    Prefer acrftreg.zip (1.3MB) over acrftreg.csv (6.7MB) when bandwidth matters -
+    it is the same content, zip-compressed, at roughly a fifth of the size.
+error_envelope:
+  detail: errors/casa-aviation-problem-types.yml
+  short: >-
+    No JSON or problem+json error contract. services.casa.gov.au returns an IIS
+    HTML 404 page; data.casa.rpasplatform.net returns a Google Cloud Storage XML
+    AccessDenied error. Never assume an error response is JSON.
+tracing:
+  request_id_header: none
+  note: >-
+    No correlation or request-id header is returned by services.casa.gov.au. The
+    myCASA portal returns Microsoft x-ms-request-id and x-azure-ref headers, but
+    that is the Power Pages portal, not a data API.
+metadata_and_expansion:
+  custom_metadata: not supported
+  field_expansion: not supported
+  sparse_fieldsets: not supported

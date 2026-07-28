@@ -1,0 +1,41 @@
+generated: '2026-07-28'
+method: searched
+source: >-
+  npm registry search, PyPI, GitHub repository search and the CASA documentation
+  pages, 2026-07-28
+summary: >-
+  CASA ships no client library in any language. No first-party SDK exists on npm,
+  PyPI, Maven Central, NuGet, pkg.go.dev, RubyGems, Packagist or crates.io, and
+  CASA's data-files pages offer no code samples or download helpers. One
+  third-party TypeScript library was found. Because there is no official client
+  library, NO `SDKs` pointer is wired into apis.yml - only `Packages`.
+official_packages: []
+packages:
+  - language: typescript
+    registry: npm
+    name: '@cael-aero/casa-utils'
+    version: 1.0.9
+    url: https://www.npmjs.com/package/@cael-aero/casa-utils
+    install: npm install @cael-aero/casa-utils
+    repository: https://github.com/CAELAero/casa-utils
+    repository_description: Utilities for parsing publicly available CASA data.
+    author: Justin Couch
+    license: BSD-3-Clause
+    keywords: [CASA, airworthiness, typescript]
+    last_published: '2026-05-15'
+    github_stars: 0
+    official: false
+    note: >-
+      Third-party, independent of CASA. It parses the published CASA data files
+      rather than calling an API, which is the only integration shape CASA's open
+      surface allows.
+registries_searched:
+  - {registry: npm, queries: ["casa aircraft register", "airworthiness directive"], first_party_hits: 0}
+  - {registry: pypi, queries: ["casa-register", "casa-aviation", "australian-aircraft-register", "casa-utils", "pycasa"], first_party_hits: 0, note: "pycasa exists but is a Picasa photo-album tool, unrelated to CASA."}
+  - {registry: github-orgs, queries: ["casa-gov-au", "CASA-gov-au", "civilaviationsafetyauthority", "casagovau"], first_party_hits: 0, note: "No CASA GitHub organisation was found; all four candidate org names return 404."}
+  - {registry: maven-central, first_party_hits: 0}
+  - {registry: nuget, first_party_hits: 0}
+  - {registry: pkg.go.dev, first_party_hits: 0}
+  - {registry: rubygems, first_party_hits: 0}
+  - {registry: packagist, first_party_hits: 0}
+  - {registry: crates.io, first_party_hits: 0}

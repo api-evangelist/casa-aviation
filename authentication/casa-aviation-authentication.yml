@@ -1,0 +1,93 @@
+generated: '2026-07-28'
+method: searched
+source: >-
+  https://www.casa.gov.au/sites/default/files/2022-06/rpas-platform-operating-rules.pdf
+docs:
+  - https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft
+  - https://www.casa.gov.au/aircraft/airworthiness/airworthiness-directives/data-files-all-airworthiness-directives
+  - https://www.casa.gov.au/drones/industry-initiatives/digital-platform
+note: >-
+  CASA publishes no OpenAPI, so no securityScheme could be derived mechanically.
+  This profile is read from CASA's own published documentation and the public
+  RPAS Platform reference PDFs. Two surfaces are anonymous; one is gated by a
+  CASA-issued service account.
+summary:
+  types:
+    - none
+    - service-account
+  api_key_in: []
+  oauth2_flows: []
+  anonymous_surfaces: 2
+  gated_surfaces: 1
+schemes:
+  - name: none
+    type: none
+    applies_to:
+      - casa-aviation:casa-airworthiness-directives-data
+      - casa-aviation:casa-aircraft-register-data
+    description: >-
+      The Airworthiness Directives data files and the Australian Civil Aircraft
+      Register data files are served without authentication. No API key, no
+      account, no registration and no click-through terms acceptance were
+      located on either data-files page.
+    hosts:
+      - https://services.casa.gov.au
+    evidence: >-
+      CASA's data-files pages publish direct download URLs with no credential
+      instructions; combinedadweb.json was retrieved and parsed anonymously on
+      2026-07-28 (see review.yml probes).
+    caveat: >-
+      services.casa.gov.au returns HTTP 403 to unadorned programmatic clients
+      (curl). This is an edge/bot filter, not an authentication requirement -
+      the same URLs return 200 to a browser-like client.
+  - name: rpas-platform-service-account
+    type: serviceAccount
+    applies_to:
+      - casa-aviation:casa-rpas-digital-platform
+    description: >-
+      The CASA RPAS Digital Platform feeds under data.casa.rpasplatform.net are
+      accessed with a CASA-issued service account. The RPAS Platform Operating
+      Rules (Attachment A) state for the notifications feed that the "URL needs
+      authentication with a service account". No public token endpoint, no
+      OAuth metadata and no self-serve credential issuance exists.
+    hosts:
+      - https://data.casa.rpasplatform.net
+    credential_issuance:
+      self_serve: false
+      process: >-
+        Written application to CASA; acceptance of the RPAS Platform Terms and
+        Conditions (four-year initial term); a Declaration of Compliance against
+        the RPAS Platform Operating Rules; a live onboarding check-out against
+        the RPAS Platform Test Procedure (two attempts permitted); and
+        demonstrable compliance with Australian Government security and privacy
+        requirements including the ASD Essential Eight, at the applicant's
+        expense.
+      environments:
+        - name: staging
+          note: Credentials issued once the initial written application is accepted and terms agreed.
+        - name: development
+          note: CASA internal only.
+        - name: production
+          note: Credentials issued only after the minimum requirements for approval are met.
+      prerequisite: >-
+        A paid Airservices Australia aeronautical/airspace data licence must be
+        in place before CASA will consider approving access (Concept of
+        Operations clause 13.1).
+      currently_open: partial
+      status_note: >-
+        New app providers may apply to onboard for Sydney Harbour AAA
+        (R405A/R405B) and airspace awareness maps. CASA has paused onboarding of
+        new providers for the ten trial aerodromes pending Airservices'
+        Flight Information Management System (FIMS).
+    evidence:
+      - source: https://www.casa.gov.au/sites/default/files/2022-06/rpas-platform-operating-rules.pdf
+        note: Attachment A names the endpoints and the service-account requirement.
+      - source: https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-concept-of-operations.pdf
+        note: Platform environments and minimum requirements for approval.
+      - source: https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-terms-conditions.pdf
+        note: Agreement term, licence grant and termination conditions.
+not_found:
+  - No OAuth 2.0 or OpenID Connect surface on casa.gov.au, services.casa.gov.au
+    or data.casa.rpasplatform.net.
+  - No API key issuance, developer account or key-management console.
+  - No /.well-known/openid-configuration or /.well-known/oauth-authorization-server.

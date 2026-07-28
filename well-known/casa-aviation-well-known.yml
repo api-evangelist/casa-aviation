@@ -1,0 +1,72 @@
+generated: '2026-07-28'
+method: probed
+source: live HTTPS probes with a browser user-agent, 2026-07-28
+summary: >-
+  CASA publishes no /.well-known/ discovery surface. Every RFC 9116 security.txt,
+  OIDC discovery, RFC 8414 authorization-server metadata, RFC 9727 api-catalog and
+  ai-plugin.json probe missed across all four CASA hosts. No raw documents were
+  saved because none returned 200. This absence is recorded deliberately - it is a
+  real finding, not a gap in the probe.
+result: none-found
+probe_note: >-
+  www.casa.gov.au does not answer programmatic clients from this probe host at all
+  (HTTP/2 stream INTERNAL_ERROR, HTTP/1.1 timeout, curl exit 28, status 000) - the
+  same behaviour recorded in review.yml on the same day. services.casa.gov.au and
+  my.casa.gov.au answer normally with a browser user-agent and return clean 404s.
+  data.casa.rpasplatform.net answers 403 to every path, including paths that do not
+  exist, because it is a Google Cloud Storage bucket with a deny-by-default ACL.
+hosts:
+  - host: https://services.casa.gov.au
+    reachable: true
+    documents:
+      - {path: /.well-known/security.txt, status: 404}
+      - {path: /.well-known/openid-configuration, status: 404}
+      - {path: /.well-known/oauth-authorization-server, status: 404}
+      - {path: /.well-known/oauth-protected-resource, status: 404}
+      - {path: /.well-known/api-catalog, status: 404}
+      - {path: /.well-known/ai-plugin.json, status: 404}
+  - host: https://my.casa.gov.au
+    reachable: true
+    documents:
+      - {path: /.well-known/security.txt, status: 404}
+      - {path: /.well-known/openid-configuration, status: 404}
+      - {path: /.well-known/oauth-authorization-server, status: 500}
+      - {path: /.well-known/oauth-protected-resource, status: 404}
+      - {path: /.well-known/api-catalog, status: 404}
+      - {path: /.well-known/ai-plugin.json, status: 404}
+    note: >-
+      The 500 on /.well-known/oauth-authorization-server is not an authorization
+      server. myCASA is a Microsoft Power Pages site (Dynamics 365 portal headers,
+      x-ms-portal-app, Azure AD B2C at b2cprodcasa.b2clogin.com) and the response
+      body is the Power Pages MCP error
+      {"error":"server_error","error_description":"MCP is not enabled for this
+      site"}. That is a platform feature switched off, not a CASA API. Recorded in
+      mcp/casa-aviation-mcp.yml.
+  - host: https://data.casa.rpasplatform.net
+    reachable: false
+    documents:
+      - {path: /.well-known/security.txt, status: 403}
+      - {path: /.well-known/openid-configuration, status: 403}
+      - {path: /.well-known/oauth-authorization-server, status: 403}
+      - {path: /.well-known/oauth-protected-resource, status: 403}
+      - {path: /.well-known/api-catalog, status: 403}
+      - {path: /.well-known/ai-plugin.json, status: 403}
+    note: >-
+      Every response is the Google Cloud Storage XML error
+      <Error><Code>AccessDenied</Code><Message>Access denied.</Message></Error>
+      with server: UploadServer and an x-guploader-uploadid header. A uniform 403
+      on every path carries no information about which paths exist.
+  - host: https://www.casa.gov.au
+    reachable: false
+    documents:
+      - {path: /.well-known/security.txt, status: 000}
+      - {path: /.well-known/openid-configuration, status: 000}
+      - {path: /.well-known/oauth-authorization-server, status: 000}
+      - {path: /.well-known/oauth-protected-resource, status: 000}
+      - {path: /.well-known/api-catalog, status: 000}
+      - {path: /.well-known/ai-plugin.json, status: 000}
+    note: >-
+      No response to any programmatic request from this probe host, so the absence
+      of a security.txt on www.casa.gov.au is unconfirmed rather than proven. CASA
+      does publish a vulnerability disclosure program as a normal web page - see
+      security/casa-aviation-vulnerability-disclosure.yml.

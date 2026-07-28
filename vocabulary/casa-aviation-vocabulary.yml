@@ -1,0 +1,406 @@
+generated: '2026-07-28'
+method: derived
+source: >-
+  Complete value-set extraction over the full live CASA data files retrieved
+  2026-07-28: https://services.casa.gov.au/CSV/acrftreg.csv (16,660 rows, 44
+  columns, Last-Modified Mon 27 Jul 2026 22:16:25 GMT) and
+  https://services.casa.gov.au/JSON/combinedadweb.json (17,738 records,
+  Last-Modified Mon 27 Jul 2026 00:45:18 GMT), plus
+  https://services.casa.gov.au/airworth/airwd/data/folder.csv (426 series rows).
+summary: >-
+  CASA documents the MEANING of its coded fields in prose on casa.gov.au but
+  publishes no machine-readable code list anywhere. This vocabulary is the
+  complete distinct value set for every enumerable field, computed by reading
+  every record in every published file - not sampled, not inferred and not copied
+  from a CASA page. Counts are the observed frequency on 2026-07-28. Where a
+  field turned out NOT to be enumerable (free-text party addresses, manufacturer
+  names) that is recorded as a finding rather than forced into a code list.
+completeness: >-
+  Every enumeration below is EXHAUSTIVE for the 2026-07-28 snapshot - the count
+  of distinct values equals the number of entries listed. CASA gives no notice
+  of value-set changes, so treat these as observed-and-dated, not contractual.
+  Validate on ingest.
+caveat: >-
+  These are CASA's operational values, not a governed code list. Several fields
+  carry the same real-world concept under multiple spellings (see
+  data_quality_findings). Normalise before you group or join.
+
+vocabularies:
+
+  - id: ad-status
+    label: Airworthiness Directive status
+    field: Status
+    file: https://services.casa.gov.au/JSON/combinedadweb.json
+    scope: casa-aviation:casa-airworthiness-directives-data
+    distinct: 3
+    exhaustive: true
+    values:
+      - {value: Active, count: 12993, meaning: The directive is in force.}
+      - {value: Cancelled, count: 4326, meaning: 'The directive has been cancelled. Cancelled directives REMAIN in the published file - 24.4% of the file is history, and a consumer that does not filter on Status will act on withdrawn regulation.'}
+      - {value: Urgent, count: 419, meaning: 'Urgent airworthiness directive. A distinct status value, not a flag on Active - filtering for Status == "Active" alone silently drops all 419 urgent directives.'}
+
+  - id: ad-group
+    label: Airworthiness Directive group
+    field: GROUPTITLE (code) / GroupDesc (description)
+    file: https://services.casa.gov.au/JSON/combinedadweb.json
+    scope: casa-aviation:casa-airworthiness-directives-data
+    distinct: 9
+    exhaustive: true
+    note: >-
+      GROUPTITLE maps 1:1 to GroupDesc across all 17,738 records. The separate
+      GROUPS field is a comma-and-space delimited STRING of these same codes
+      (e.g. "AIRGEN, ROTOR, UNDER, OVER"), not a JSON array - split it yourself.
+    values:
+      - {value: OVER, description: Aircraft above 5700 kg, count: 6692}
+      - {value: UNDER, description: Aircraft below 5700 kg, count: 5336}
+      - {value: ROTOR, description: Rotorcraft, count: 3103}
+      - {value: TURBINE, description: Turbine engines, count: 1117}
+      - {value: EQUIP, description: Equipment, count: 955}
+      - {value: PISTON, description: Piston engines, count: 399}
+      - {value: AIRGEN, description: Aircraft General, count: 88}
+      - {value: LTA, description: Aircraft - Lighter than air, count: 41}
+      - {value: ENGGEN, description: Engine General, count: 7}
+
+  - id: ad-issuing-authority
+    label: Airworthiness Directive issuing authority
+    field: Authority
+    file: https://services.casa.gov.au/JSON/combinedadweb.json
+    scope: casa-aviation:casa-airworthiness-directives-data
+    distinct: 25
+    exhaustive: true
+    note: >-
+      NOT a governed code list. CASA adopts foreign directives, and the issuing
+      regulator is recorded as free text - only 11,940 of 17,738 records are
+      CASA's own. The same regulator appears under several spellings and there
+      are outright typos in the published file.
+    values:
+      - {value: CASA, count: 11940}
+      - {value: EASA, count: 2826}
+      - {value: FAA, count: 1819}
+      - {value: Canada, count: 688}
+      - {value: Brazil, count: 133}
+      - {value: Japan, count: 64}
+      - {value: 'USA - FAA', count: 58}
+      - {value: France, count: 53}
+      - {value: 'NZ CAA', count: 41}
+      - {value: Switzerland, count: 28}
+      - {value: 'CAA UK', count: 22}
+      - {value: NZ, count: 20}
+      - {value: 'UK CAA', count: 12}
+      - {value: Israel, count: 12}
+      - {value: '', count: 8, note: empty string}
+      - {value: EASa, count: 3, note: case typo for EASA}
+      - {value: Spain, count: 2}
+      - {value: CANADA, count: 2, note: case variant of Canada}
+      - {value: USA, count: 1}
+      - {value: 'Israel CAA', count: 1}
+      - {value: Candada, count: 1, note: spelling error for Canada, published as-is}
+      - {value: JCAB, count: 1, note: Japan Civil Aviation Bureau - same authority as "Japan"}
+      - {value: NA, count: 1}
+      - {value: Italy, count: 1}
+      - {value: Argentina, count: 1}
+    normalisation_groups:
+      - {canonical: FAA, raw: [FAA, 'USA - FAA', USA]}
+      - {canonical: EASA, raw: [EASA, EASa]}
+      - {canonical: Transport Canada, raw: [Canada, CANADA, Candada]}
+      - {canonical: CAA New Zealand, raw: ['NZ CAA', NZ]}
+      - {canonical: CAA United Kingdom, raw: ['CAA UK', 'UK CAA']}
+      - {canonical: JCAB Japan, raw: [Japan, JCAB]}
+      - {canonical: CAA Israel, raw: [Israel, 'Israel CAA']}
+
+  - id: register-registration-type
+    label: Registration type
+    field: regType
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 2
+    exhaustive: true
+    values:
+      - {value: Full Registration, count: 16656}
+      - {value: SUSPENDED, count: 4, note: 'Written in upper case, unlike every other value in the file. The same four aircraft carry suspendstatus = "Suspended".'}
+
+  - id: register-airframe
+    label: Airframe class
+    field: Airframe
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 10
+    exhaustive: true
+    note: >-
+      This is the field that separates crewed aircraft from remotely piloted
+      aircraft. Only 11 of 16,660 registered aircraft carry an RPA airframe class
+      - the overwhelming majority of Australian drones are not on this register.
+    values:
+      - {value: Power Driven Aeroplane, count: 12113}
+      - {value: Rotorcraft, count: 2784}
+      - {value: Glider, count: 967}
+      - {value: Manned Free Balloon, count: 454}
+      - {value: Motor-Glider, count: 330}
+      - {value: 'RPA - Rotorcraft', count: 4}
+      - {value: 'RPA - Powered Lift', count: 4}
+      - {value: 'RPA - Power Driven Aeroplane', count: 2}
+      - {value: 'RPA - Airship', count: 1}
+      - {value: Airship, count: 1}
+
+  - id: register-engine-type
+    label: Engine type
+    field: Engtype
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 9
+    exhaustive: true
+    values:
+      - {value: Piston, count: 12008}
+      - {value: Not Applicable, count: 1422, note: 'Sentinel for unpowered aircraft. The same 1,422 rows carry engnum "0", Fueltype "Not Applicable" and Engmanu "AIRCRAFT NOT FITTED WITH ENGINE".'}
+      - {value: Turboprop, count: 1139}
+      - {value: Turboshaft, count: 1106}
+      - {value: Turbofan, count: 794}
+      - {value: Turbojet, count: 78}
+      - {value: Diesel Engine, count: 57}
+      - {value: Electric, count: 29}
+      - {value: Rotary, count: 27}
+
+  - id: register-fuel-type
+    label: Fuel type
+    field: Fueltype
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 5
+    exhaustive: true
+    values:
+      - {value: Gasoline, count: 12035, note: Avgas.}
+      - {value: Kerosene, count: 3117, note: Jet fuel.}
+      - {value: Not Applicable, count: 1422, note: Unpowered.}
+      - {value: Diesel, count: 57}
+      - {value: Electricity, count: 29}
+
+  - id: register-engine-count
+    label: Number of engines
+    field: engnum
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 7
+    exhaustive: true
+    note: Written as a string, not a number. "0" means unpowered, not unknown.
+    values:
+      - {value: '1', count: 12428}
+      - {value: '2', count: 2762}
+      - {value: '0', count: 1422}
+      - {value: '4', count: 28}
+      - {value: '3', count: 14}
+      - {value: '8', count: 5}
+      - {value: '16', count: 1}
+
+  - id: register-coa-category-a
+    label: Certificate of Airworthiness category (primary)
+    field: CoAcata
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 39
+    exhaustive: true
+    shape: >-
+      A COMPOSITE value, not an atom - "<state> (<category>[; <category>...])".
+      The state prefix is one of Active, Draft, Expired, Inactive, Suspended; the
+      parenthesised part is a semicolon-delimited set of airworthiness
+      categories. Parse it, do not string-match it. 4,859 rows are empty.
+    states: [Active, Draft, Expired, Inactive, Suspended]
+    categories_observed:
+      - Normal
+      - Utility
+      - Transport
+      - Acrobatic
+      - Restricted
+      - Commuter
+      - Special Class
+      - Special Class - Airship
+      - Manned Free Balloon
+      - Experimental
+      - Amateur-Built
+      - Limited
+      - Agricultural
+      - 'Normal (SFAR41)'
+    values:
+      - {value: 'Active (Normal)', count: 7439}
+      - {value: '', count: 4859}
+      - {value: 'Active (Normal; Utility)', count: 1363}
+      - {value: 'Active (Transport)', count: 887}
+      - {value: 'Active (Acrobatic; Normal)', count: 428}
+      - {value: 'Active (Utility)', count: 352}
+      - {value: 'Active (Manned Free Balloon)', count: 333}
+      - {value: Draft, count: 288}
+      - {value: 'Active (Restricted)', count: 184}
+      - {value: Expired, count: 118}
+      - {value: 'Active (Acrobatic)', count: 100}
+      - {value: 'Active (Commuter)', count: 81}
+      - {value: 'Active (Normal; Restricted)', count: 76}
+      - {value: 'Active (Special Class)', count: 29}
+      - {value: 'Active (Normal; Special Class)', count: 24}
+      - {value: 'Active (Normal; Transport)', count: 22}
+      - {value: 'Active (Acrobatic; Utility)', count: 18}
+      - {value: 'Active (Acrobatic; Normal; Utility)', count: 11}
+      - {value: Inactive, count: 8}
+      - {value: 'Active (Manned Free Balloon; Normal)', count: 5}
+      - {value: 'Suspended (Normal)', count: 4}
+      - {value: 'Active (Special Class; Transport)', count: 4}
+      - {value: 'Active (Experimental)', count: 4}
+      - {value: 'Active (Restricted; Special Class)', count: 3}
+      - {value: 'Active (Normal; Normal (SFAR41))', count: 2}
+      - {value: 'Active (Normal (SFAR41))', count: 2}
+      - {value: 'Active (Limited)', count: 2}
+      - {value: 'Active (Commuter; Normal)', count: 2}
+      - {value: 'Active (Amateur-Built)', count: 2}
+      - {value: 'Suspended (Normal; Utility)', count: 1}
+      - {value: 'Active (Transport; Utility)', count: 1}
+      - {value: 'Active (Special Class - Airship)', count: 1}
+      - {value: 'Active (Restricted; Transport)', count: 1}
+      - {value: 'Active (Commuter; Normal (SFAR41))', count: 1}
+      - {value: 'Active (Amateur-Built; Experimental)', count: 1}
+      - {value: 'Active (Agricultural; Restricted)', count: 1}
+      - {value: 'Active (Acrobatic; Special Class)', count: 1}
+      - {value: 'Active (Acrobatic; Normal; Special Class)', count: 1}
+      - {value: 'Active (Acrobatic; Normal (SFAR41))', count: 1}
+
+  - id: register-coa-category-b
+    label: Certificate of Airworthiness category (secondary)
+    field: CoAcatb
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 29
+    exhaustive: true
+    note: >-
+      Same composite shape as CoAcata. Empty in 13,987 of 16,660 rows. This is
+      where the experimental, amateur-built, limited, light-sport and
+      historical/ex-military populations live - if you are counting Australia's
+      experimental fleet, CoAcata alone will miss almost all of it.
+    additional_categories_observed:
+      - Light Sport Aircraft
+      - 'Historical / Ex-Military'
+      - Primary
+    values:
+      - {value: '', count: 13987}
+      - {value: 'Active (Experimental)', count: 1015}
+      - {value: 'Active (Restricted)', count: 409}
+      - {value: Expired, count: 232}
+      - {value: 'Active (Limited)', count: 225}
+      - {value: 'Active (Amateur-Built)', count: 201}
+      - {value: 'Active (Amateur-Built; Experimental)', count: 188}
+      - {value: Draft, count: 150}
+      - {value: 'Active (Agricultural; Restricted)', count: 75}
+      - {value: 'Active (Light Sport Aircraft)', count: 64}
+      - {value: 'Active (Experimental; Limited)', count: 37}
+      - {value: 'Active (Historical / Ex-Military; Limited)', count: 26}
+      - {value: 'Active (Limited; Restricted)', count: 11}
+      - {value: 'Active (Normal)', count: 8}
+      - {value: 'Active (Agricultural)', count: 7}
+      - {value: 'Active (Normal; Restricted)', count: 4}
+      - {value: 'Active (Special Class)', count: 3}
+      - {value: 'Active (Experimental; Light Sport Aircraft)', count: 3}
+      - {value: 'Active (Acrobatic; Limited)', count: 3}
+      - {value: Inactive, count: 2}
+      - {value: 'Active (Amateur-Built; Amateur-Built; Experimental; Experimental)', count: 2, note: 'Duplicated categories inside one value - a real data-quality defect in the published file, reproduced here verbatim.'}
+      - {value: 'Active (Transport)', count: 1}
+      - {value: 'Active (Restricted; Special Class - Airship)', count: 1}
+      - {value: 'Active (Primary)', count: 1}
+      - {value: 'Active (Experimental; Restricted)', count: 1}
+      - {value: 'Active (Experimental; Historical / Ex-Military; Limited)', count: 1}
+      - {value: 'Active (Amateur-Built; Light Sport Aircraft)', count: 1}
+      - {value: 'Active (Acrobatic; Historical / Ex-Military; Limited)', count: 1}
+      - {value: 'Active (Acrobatic; Experimental)', count: 1}
+
+  - id: register-suspension-status
+    label: Suspension status
+    field: suspendstatus
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 2
+    exhaustive: true
+    values:
+      - {value: '', count: 16656}
+      - {value: Suspended, count: 4}
+
+  - id: register-country-of-manufacture
+    label: Country of manufacture
+    field: Countrymanu
+    file: https://services.casa.gov.au/CSV/acrftreg.csv
+    scope: casa-aviation:casa-aircraft-register-data
+    distinct: 38
+    exhaustive: true
+    note: >-
+      Country NAMES, not ISO 3166 codes, and several are historical states that
+      no longer exist. Map to ISO yourself; there is no code column.
+    non_iso_values: ['Yugoslavia', 'Czechoslovakia (formerly)', "People's Republic of China", 'The Netherlands', 'Russia']
+    values:
+      - {value: United States of America, count: 10131}
+      - {value: Australia, count: 2267}
+      - {value: Germany, count: 998}
+      - {value: France, count: 635}
+      - {value: United Kingdom, count: 604}
+      - {value: Canada, count: 469}
+      - {value: Italy, count: 221}
+      - {value: Poland, count: 162}
+      - {value: Czech Republic, count: 139}
+      - {value: Switzerland, count: 135}
+      - {value: New Zealand, count: 124}
+      - {value: Brazil, count: 102}
+      - {value: South Africa, count: 87}
+      - {value: Russia, count: 83}
+      - {value: Austria, count: 82}
+      - {value: Sweden, count: 73}
+      - {value: Japan, count: 57}
+      - {value: The Netherlands, count: 55}
+      - {value: Romania, count: 47}
+      - {value: "People's Republic of China", count: 47}
+      - {value: Ukraine, count: 30}
+      - {value: Finland, count: 30}
+      - {value: Slovenia, count: 15}
+      - {value: Spain, count: 14}
+      - {value: Lithuania, count: 13}
+      - {value: Israel, count: 10}
+      - {value: Yugoslavia, count: 8}
+      - {value: Argentina, count: 6}
+      - {value: Malaysia, count: 4}
+      - {value: Slovak Republic, count: 3}
+      - {value: Belgium, count: 2}
+      - {value: Portugal, count: 1}
+      - {value: Philippines, count: 1}
+      - {value: Iran, count: 1}
+      - {value: Hong Kong, count: 1}
+      - {value: Egypt, count: 1}
+      - {value: 'Czechoslovakia (formerly)', count: 1}
+      - {value: Bosnia and Herzegovina, count: 1}
+
+dead_columns:
+  note: >-
+    Two of the 44 register columns are empty in EVERY one of the 16,660 rows.
+    They are published, documented as coded fields, and carry no data at all.
+  columns:
+    - {field: gear, distinct_values: 1, only_value: '', rows: 16660, meaning_documented_as: landing gear code}
+    - {field: CoAcatc, distinct_values: 1, only_value: '', rows: 16660, meaning_documented_as: Certificate of Airworthiness category C}
+
+non_enumerable_fields:
+  note: >-
+    These look like coded fields and are not. Recorded so nobody tries to build a
+    code list from them.
+  fields:
+    - {field: regholdState, distinct: 94, finding: 'Free text. NSW/QLD/VIC/WA/SA/NT/ACT/TAS abbreviations coexist with the full state names ("Queensland", 254 rows), with overseas states and cities (DELAWARE, Tokyo, Dublin 4, PARIS), and with junk ("."). Normalise before any geographic analysis.'}
+    - {field: regopState, distinct: 33, finding: 'Same problem, smaller tail: "W.A", "N.T", "Q", "western  Australia" (double space), a bare postcode "3028" and suburb names in the state column.'}
+    - {field: Manu, finding: 'Manufacturer names are free text with no identifier. The same manufacturer appears under legacy and current corporate names.'}
+    - {field: Engmanu / Propmanu, finding: 'Free text plus the sentinel strings AIRCRAFT NOT FITTED WITH ENGINE and AIRCRAFT NOT FITTED WITH PROPELLER, with Engmodel / Propmodel set to NOT APPLICABLE.'}
+    - {field: SeriesName, distinct: 425, finding: 'The AD type-series names. Enumerable but large; consume folder.csv directly rather than copying it here. folder.csv publishes 426 series and 425 of them have at least one directive - FOLDERNAME "CT58" is published with zero directives against it (verified 2026-07-28 by set-differencing all 426 folder.csv FOLDERNAMEs against the 425 distinct FOLDERNAMEs in the 17,738 AD records). No AD references a FOLDERNAME missing from folder.csv, so the join is total in that direction.'}
+
+data_quality_findings:
+  - 'Authority carries a spelling error ("Candada") and a case error ("EASa") in the live file.'
+  - 'CoAcatb contains a value with duplicated categories: "Active (Amateur-Built; Amateur-Built; Experimental; Experimental)".'
+  - 'regType uses upper-case SUSPENDED where every other value is title case.'
+  - 'Cancelled directives are 24.4% of the AD file and are not separated out; Urgent is a status, not a flag.'
+  - 'Two of 44 register columns are entirely empty.'
+  - 'State fields are free text with 94 distinct values across 8 real Australian states.'
+
+cross_links:
+  schemas: [json-schema/casa-aviation-airworthiness-directive.schema.json, json-schema/casa-aviation-aircraft-register-row.schema.json]
+  examples: [examples/casa-aviation-airworthiness-directives-examples.json, examples/casa-aviation-aircraft-register-examples.json]
+  conventions: conventions/casa-aviation-conventions.yml
+  data_model: data-model/casa-aviation-data-model.yml
+  casa_prose_docs:
+    - https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft/meaning-coded-fields-registered-aircraft
+    - https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft/list-coded-fields-registered-aircraft

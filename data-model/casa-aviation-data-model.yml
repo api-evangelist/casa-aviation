@@ -1,0 +1,174 @@
+generated: '2026-07-28'
+method: derived
+source: >-
+  the live CASA data files retrieved 2026-07-28 (combinedadweb.json 17,738 records;
+  acrftreg.csv header; adweb.csv 17,738 rows; folder.csv), plus the RPAS Platform
+  Operating Rules Attachment A
+summary: >-
+  CASA publishes no schema and no object reference, so this entity graph was
+  derived from the files themselves. Two independent domains exist and they do NOT
+  join to each other in the published data: the airworthiness domain (directives,
+  series, groups) and the registration domain (aircraft, holders, operators). The
+  natural bridge between them - which directives apply to which registered aircraft
+  - is the work an integrator has to do, and CASA does not do it for you.
+entities:
+  - name: AirworthinessDirective
+    source: https://services.casa.gov.au/JSON/combinedadweb.json
+    also_in: https://services.casa.gov.au/airworth/airwd/data/adweb.csv
+    schema: json-schema/casa-aviation-airworthiness-directive.schema.json
+    record_count_observed: 17738
+    primary_key: ID
+    key_type: opaque integer, unique, sparse (observed range 1 to 18964)
+    public_citation: 'SeriesNumber + ADNUMBER, e.g. "AD/B747/" + "100" = AD/B747/100'
+    document:
+      url_template: 'https://services.casa.gov.au/airworth/airwd/ADfiles/{GROUPTITLE|lower}/{FOLDERNAME|lower}/{ADFILE}'
+      media_type: application/pdf
+      verified: '2026-07-28'
+    status_values: [Active, Cancelled, Urgent]
+    fields: 16
+    relationships:
+      - {type: belongs_to, target: AdSeries, via: FOLDERNAME}
+      - {type: belongs_to, target: AdGroup, via: GROUPTITLE}
+      - {type: has_many, target: AdGroup, via: GROUPS, note: 'comma-and-space separated string, not an array'}
+      - {type: belongs_to, target: IssuingAuthority, via: Authority}
+      - {type: has_one, target: AdDocument, via: 'FOLDERNAME + ADFILE'}
+  - name: AdSeries
+    source: https://services.casa.gov.au/airworth/airwd/data/folder.csv
+    schema: json-schema/casa-aviation-ad-listing-row.schema.json#/$defs/AdSeriesRow
+    record_count_observed: 426
+    primary_key: FOLDERNAME
+    description: >-
+      One aircraft or equipment type series, e.g. FOLDERNAME "B747" / SeriesNumber
+      "AD/B747/". folder.csv carries 426 series; only 425 of them appear in the AD
+      list, so one published series currently has no directives against it.
+    relationships:
+      - {type: has_many, target: AirworthinessDirective, via: FOLDERNAME}
+      - {type: belongs_to, target: AdGroup, via: GROUPTITLE}
+  - name: AdGroup
+    source: 'derived from the GROUPTITLE/GROUPS/GroupDesc fields'
+    cardinality: 9
+    primary_key: GROUPTITLE
+    members:
+      - {code: AIRGEN, description: Aircraft General}
+      - {code: ENGGEN, description: Engine General}
+      - {code: EQUIP, description: Equipment}
+      - {code: LTA, description: Aircraft - Lighter than air}
+      - {code: OVER, description: Aircraft above 5700 kg}
+      - {code: UNDER, description: Aircraft below 5700 kg}
+      - {code: ROTOR, description: Rotorcraft}
+      - {code: PISTON, description: Piston engines}
+      - {code: TURBINE, description: Turbine engines}
+    note: >-
+      The GROUPTITLE code set is the complete distinct value set across all 17,738
+      AD records. Every description above is the verbatim Groupdesc value CASA
+      writes in folder.csv for that group - each GROUPTITLE maps to exactly one
+      Groupdesc, checked across all 426 series rows.
+    relationships:
+      - {type: has_many, target: AdSeries, via: GROUPTITLE}
+      - {type: has_many, target: AirworthinessDirective, via: GROUPS}
+  - name: IssuingAuthority
+    source: 'derived from the Authority field'
+    primary_key: Authority
+    description: >-
+      The regulator that issued the directive. CASA adopts foreign directives, so
+      only 11,940 of 17,738 records are CASA's own. Observed: CASA 11,940, EASA
+      2,826, FAA 1,819, Canada 688, Brazil 133, Japan 64, "USA - FAA" 58, France
+      53, NZ CAA 41, Switzerland 28, plus a long tail.
+    data_quality: >-
+      Not a normalised code list. "FAA" and "USA - FAA" are the same regulator
+      under two spellings. Normalise before grouping.
+    relationships:
+      - {type: has_many, target: AirworthinessDirective, via: Authority}
+  - name: RegisteredAircraft
+    source: https://services.casa.gov.au/CSV/acrftreg.csv
+    schema: json-schema/casa-aviation-aircraft-register-row.schema.json
+    primary_key: Mark
+    key_type: >-
+      Australian registration mark without the VH- nationality prefix (the file
+      carries "22A" for VH-22A).
+    scope: Only aircraft CURRENTLY registered in Australia. Deregistered aircraft are absent, so the file is a snapshot, not a history.
+    fields: 44
+    portable_keys: [Mark, ICAOtypedesig, Serial, Typecert]
+    relationships:
+      - {type: has_one, target: RegistrationHolder, via: 'regholdname + regholdCommdate'}
+      - {type: has_one, target: RegisteredOperator, via: 'regopName + regopCommdate'}
+      - {type: has_one, target: AircraftType, via: 'Manu + Model + ICAOtypedesig'}
+      - {type: has_one, target: Powerplant, via: 'Engmanu + Engmodel + Engtype'}
+      - {type: has_one, target: Propeller, via: 'Propmanu + Propmodel'}
+      - {type: has_one, target: TypeCertificate, via: Typecert}
+      - {type: has_one, target: IderaAuthorisedParty, via: IDERA_Authorised_Party}
+  - name: RegistrationHolder
+    source: 'embedded in acrftreg.csv (regholdname, regholdadd1..2, regholdSuburb, regholdState, regholdPostcode, regholdCountry, regholdCommdate)'
+    primary_key: none
+    normalisation: >-
+      Denormalised into the aircraft row. There is no party identifier, so the same
+      legal entity appears once per aircraft with free-text name and address, and
+      entity resolution is the consumer's problem.
+    relationships:
+      - {type: has_many, target: RegisteredAircraft, via: regholdname}
+  - name: RegisteredOperator
+    source: 'embedded in acrftreg.csv (regopName, regopadd1..2, regopSuburb, regopState, regopPostcode, regopCountry, regopCommdate)'
+    primary_key: none
+    normalisation: Denormalised, same as RegistrationHolder. Often identical to the holder but not always.
+    relationships:
+      - {type: has_many, target: RegisteredAircraft, via: regopName}
+  - name: AircraftType
+    source: 'embedded in acrftreg.csv (Manu, Type, Model, ICAOtypedesig, Airframe, Countrymanu, Yearmanu, MTOW)'
+    primary_key: none
+    join_key: ICAOtypedesig
+    note: >-
+      ICAO Doc 8643 designator is the one field in the whole CASA surface that
+      joins cleanly to FAA, EASA, ADS-B, MRO and insurance datasets.
+  - name: RpasAdvisory
+    source: https://data.casa.rpasplatform.net/casa/data/advisories.geojson
+    access: gated (CASA service account)
+    media_type: application/geo+json
+    schema: not published
+    refresh: at least every 15 minutes (Operating Rules, Attachment A)
+    note: >-
+      Structure unknown. The endpoint returns HTTP 403 AccessDenied to anonymous
+      clients, so no fields are recorded here. Nothing has been inferred.
+  - name: RpasNotification
+    source: https://data.casa.rpasplatform.net/casa/data/notifications.json
+    access: gated (CASA service account)
+    media_type: application/json
+    schema: not published
+    note: 'Operating Rules Attachment A: "URL needs authentication with a service account."'
+  - name: RpasGeospatialContent
+    source:
+      - https://data.casa.rpasplatform.net/casa/gcd
+      - https://data.casa.rpasplatform.net/asa/gcd
+    access: gated (CASA service account)
+    refresh: at least every 24 hours (Operating Rules, Attachment A)
+    note: >-
+      /asa/gcd carries Airservices Australia facility maps and requires a separate
+      paid Airservices data licence.
+cross_domain_gap:
+  observation: >-
+    There is no key shared between the airworthiness domain and the registration
+    domain. An Airworthiness Directive identifies its applicability by FOLDERNAME
+    (a CASA type-series code such as "B747" or "750XL"); a registered aircraft
+    identifies its type by Manu/Model and the ICAO Doc 8643 designator. CASA
+    publishes no mapping between the two.
+  consequence: >-
+    Answering "which directives apply to VH-XYZ" requires the consumer to build and
+    maintain a fuzzy FOLDERNAME-to-type mapping, and to read the applicability text
+    inside the AD PDF for the serial-number and configuration conditions. This is
+    the largest single piece of missing machine-readable structure on the CASA
+    surface, and it is where an integrator's real cost sits.
+  applicability_detail: >-
+    Directive applicability (affected serial ranges, modification states, compliance
+    times) exists only as prose inside the PDF at the ADFILE URL. None of it is in
+    the JSON or CSV.
+verified_joins:
+  - {left: 'combinedadweb.json DATA[].ID', right: 'adweb.csv ID', cardinality: '1:1', verified: '2026-07-28', evidence: 'GEN-001.pdf is ID 7773 in both files; B747-100.pdf is ID 1824 in both; both files carry 17,738 records'}
+  - {left: 'adweb.csv FOLDERNAME', right: 'folder.csv FOLDERNAME', cardinality: 'n:1', note: 'folder.csv supplies SeriesName, SeriesNumber, GroupDesc, SeriesOrder and GROUPS - the five fields adweb.csv omits and combinedadweb.json already carries'}
+file_redundancy_note: >-
+  combinedadweb.json is exactly adweb.csv joined to folder.csv. VERIFIED 2026-07-28
+  by joining all 17,738 adweb.csv rows to combinedadweb.json on ID and to folder.csv
+  on FOLDERNAME, then comparing ADName, ADNUMBER, ADFILE, Status, Authority,
+  SeriesName, SeriesNumber, GroupDesc, SeriesOrder and GROUPS field by field:
+  17,738 rows checked, 0 mismatches, 0 unmatched IDs. If you consume the JSON you do
+  not need either CSV; if you consume the CSVs you must do that join yourself. CASA
+  states none of this.
+render: null

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/casa-aviation/refs/heads/main/json-schema/casa-aviation-ad-listing-row.schema.json",
+  "title": "CASA Airworthiness Directive listing row (adweb.csv) and series row (folder.csv)",
+  "description": "Derived by API Evangelist from the live CASA files https://services.casa.gov.au/airworth/airwd/data/adweb.csv (2,445,841 bytes) and https://services.casa.gov.au/airworth/airwd/data/folder.csv (50,457 bytes), header rows retrieved 2026-07-28. Both files are quoted, comma-delimited with a header row. adweb.csv is the CSV projection of the AD list and carries 11 of the 16 fields present in combinedadweb.json; folder.csv is the series/group lookup carrying the 5 fields adweb.csv omits, joinable on FOLDERNAME. Not published or endorsed by CASA.",
+  "x-apievangelist": {
+    "generated": "2026-07-28",
+    "method": "derived",
+    "sources": [
+      "https://services.casa.gov.au/airworth/airwd/data/adweb.csv",
+      "https://services.casa.gov.au/airworth/airwd/data/folder.csv"
+    ],
+    "csv_dialect": {
+      "delimiter": ",",
+      "quote_char": "\"",
+      "quoting": "all fields quoted, as observed",
+      "header_row": true
+    },
+    "joins": [
+      "adweb.csv.FOLDERNAME = folder.csv.FOLDERNAME (folder.csv carries 426 series; 425 of them have directives)",
+      "adweb.csv.ID = combinedadweb.json DATA[].ID (verified 2026-07-28; both files carry the same 17,738 records)",
+      "combinedadweb.json is exactly adweb.csv joined to folder.csv: all 17,738 rows compared field by field on 2026-07-28 with 0 mismatches"
+    ]
+  },
+  "$defs": {
+    "AdListingRow": {
+      "type": "object",
+      "title": "adweb.csv row",
+      "description": "11 columns: ADName, ADNUMBER, ADIssueNumber, ADFILE, FOLDERNAME, GROUPTITLE, EffectiveDate, Authority, PublishedDate, ID, Status. Field semantics are identical to the combinedadweb.json record of the same name; see casa-aviation-airworthiness-directive.schema.json.",
+      "properties": {
+        "ADName": { "type": "string", "examples": ["Fuel System Ventilation and Drainage Modification"] },
+        "ADNUMBER": { "type": "string", "examples": ["1", "2"] },
+        "ADIssueNumber": { "type": "string", "description": "Carried as an empty string in CSV where combinedadweb.json carries JSON null.", "examples": ["9/2004", "7/2005", ""] },
+        "ADFILE": { "type": "string", "examples": ["750XL-001.pdf"] },
+        "FOLDERNAME": { "type": "string", "examples": ["750XL"] },
+        "GROUPTITLE": { "type": "string", "enum": ["AIRGEN", "ENGGEN", "EQUIP", "LTA", "OVER", "PISTON", "ROTOR", "TURBINE", "UNDER"] },
+        "EffectiveDate": { "type": "string", "description": "ISO 8601 date or empty string." },
+        "Authority": { "type": "string", "examples": ["CASA", "EASA", "FAA"] },
+        "PublishedDate": { "type": "string", "description": "ISO 8601 date or empty string." },
+        "ID": { "type": "string", "description": "Opaque CASA record identifier, carried as text in CSV. Verified 2026-07-28 to be the SAME identifier space as combinedadweb.json (GEN-001.pdf is ID 7773 in both files, B747-100.pdf is ID 1824 in both), so the JSON and CSV projections can be joined on ID. Unique across all 17,738 observed rows; observed range 1 to 18964, i.e. sparse.", "examples": ["7773", "1824"] },
+        "Status": { "type": "string", "enum": ["Active", "Cancelled", "Urgent"] }
+      },
+      "required": ["ADName", "ADNUMBER", "ADFILE", "FOLDERNAME", "GROUPTITLE", "Authority", "ID", "Status"],
+      "additionalProperties": false
+    },
+    "AdSeriesRow": {
+      "type": "object",
+      "title": "folder.csv row",
+      "description": "7 columns describing one of the 426 AD series (observed 2026-07-28) and the groups it belongs to.",
+      "properties": {
+        "SeriesName": { "type": "string", "examples": ["Aircraft - General", "Engines - General"] },
+        "SeriesNumber": { "type": "string", "description": "Citation prefix, trailing slash included.", "examples": ["AD/GENERAL/", "AD/ENG/"] },
+        "FOLDERNAME": { "type": "string", "examples": ["GEN", "ENG"] },
+        "GROUPTITLE": { "type": "string", "enum": ["AIRGEN", "ENGGEN", "EQUIP", "LTA", "OVER", "PISTON", "ROTOR", "TURBINE", "UNDER"] },
+        "Groupdesc": { "type": "string", "description": "Note the lower-case 'd' here; combinedadweb.json spells the same field 'GroupDesc'.", "examples": ["Aircraft General", "Engine General"] },
+        "SeriesOrder": { "type": "string", "examples": ["1.00"] },
+        "GROUPS": { "type": "string", "description": "Comma-and-space separated group list.", "examples": ["AIRGEN, ROTOR, UNDER, OVER", "ENGGEN, PISTON, TURBINE"] }
+      },
+      "required": ["SeriesName", "SeriesNumber", "FOLDERNAME", "GROUPTITLE", "Groupdesc", "SeriesOrder", "GROUPS"],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/AdListingRow" },
+    { "$ref": "#/$defs/AdSeriesRow" }
+  ]
+}
