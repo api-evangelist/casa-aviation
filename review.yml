@@ -1,0 +1,425 @@
+aid: casa-aviation
+name: Civil Aviation Safety Authority (CASA)
+review:
+  question: >-
+    Does CASA publish a real, reachable public API or data surface, and what
+    would it cost a customer of CASA to leave it?
+  answer: true
+  date: '2026-07-28'
+  reviewer: API Evangelist
+  tier: regulator
+  homeMarket: Australia
+  primaryDomain: casa.gov.au
+findings:
+  summary: |
+    CASA publishes two genuinely open, no-key bulk data products and one
+    approval-gated partner API. There is NO developer portal, NO OpenAPI,
+    NO Swagger, NO Postman collection and no /developers, /api or
+    /.well-known surface on casa.gov.au.
+
+    A search-engine result titled "API | Civil Aviation Safety Authority" at
+    https://www.casa.gov.au/search-centre/aircraft-register/api is NOT API
+    documentation. It was fetched and read: it is the aircraft register
+    detail record for the aircraft carrying the registration mark VH-API
+    (an amateur-built Van's RV-6, serial V285). This false positive is
+    recorded here so it is not mistaken for a developer surface again.
+
+    The open surfaces are flat files served from services.casa.gov.au:
+    a full Airworthiness Directives listing as JSON and CSV, and the
+    complete Australian Civil Aircraft Register as a daily CSV/ZIP.
+    The gated surface is the CASA RPAS Digital Platform at
+    data.casa.rpasplatform.net, whose endpoints are named in public PDFs
+    but require a service account and a signed agreement.
+  developerPortal:
+    exists: false
+    note: >-
+      No developer/developers/docs/api subdomain and no /developers or /api
+      path was found. The nearest developer-facing page is the drone
+      Digital platform page, which describes an application-and-approval
+      onboarding process, not a self-serve portal.
+    nearestEquivalent: https://www.casa.gov.au/drones/industry-initiatives/digital-platform
+  outOfScope: >-
+    CASA is a safety regulator. It does not regulate airline distribution,
+    fares, full-content agreements, GDS surcharging or consumer disclosure,
+    and it holds no GDS, NDC, channel-manager, OTA or metasearch position.
+    Nothing in the travel distribution chain runs through CASA.
+probes:
+  note: >-
+    casa.gov.au and services.casa.gov.au reject direct programmatic requests
+    from this probe host. www.casa.gov.au hung on HTTP/2 (stream INTERNAL_ERROR)
+    and timed out on HTTP/1.1, returning curl code 000; services.casa.gov.au
+    and data.casa.rpasplatform.net returned 403 to curl. All page and file
+    contents recorded below were retrieved instead through a rendering text
+    proxy that reported upstream HTTP 200. Both the direct status and the
+    proxied status are recorded, and nothing was inferred from a failed probe.
+  results:
+    - url: https://www.casa.gov.au/
+      directStatus: 000
+      note: TLS handshake succeeded (cert CN=govcms.gov.au); HTTP/2 stream closed with INTERNAL_ERROR, HTTP/1.1 timed out.
+    - url: https://www.casa.gov.au/search-centre/aircraft-register/api
+      directStatus: 000
+      proxiedStatus: 200
+      note: NOT an API page. Aircraft register record for registration mark VH-API (AMATEUR BUILT AIRCRAFT, VAN'S RV-6, serial V285, ICAO type designator RV6).
+    - url: https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft
+      directStatus: 000
+      proxiedStatus: 200
+      note: Documents acrftreg.csv and acrftreg.zip; cites CASR 47.030 as the publication obligation.
+    - url: https://www.casa.gov.au/aircraft/airworthiness/airworthiness-directives/data-files-all-airworthiness-directives
+      directStatus: 000
+      proxiedStatus: 200
+      note: Documents combinedadweb.json, adweb.csv, folder.csv and the /airworth/airwd/ADfiles/ PDF addressing scheme.
+    - url: https://www.casa.gov.au/drones/industry-initiatives/digital-platform
+      directStatus: 000
+      proxiedStatus: 200
+      note: RPAS Digital Platform onboarding page; links ConOps, Operating Rules, Test Procedure, Declaration of Compliance and Terms and Conditions.
+    - url: https://services.casa.gov.au/JSON/combinedadweb.json
+      directStatus: 403
+      proxiedStatus: 200
+      fetchDate: '2026-07-28'
+      note: >-
+        Confirmed live and parseable. First records observed:
+        {"DATA":[{"ADName":"Electrical Switch - CANCELLED","ADNUMBER":"1",
+        "ADIssueNumber":"NK","ADFILE":"GEN-001.pdf","FOLDERNAME":"GEN",
+        "GROUPTITLE":"AIRGEN","Authority":"CASA","ID":7773,"Status":"Cancelled",
+        "SeriesName":"Aircraft - General","SeriesNumber":"AD/GENERAL/"}...]}
+        Upstream Last-Published header reported 2026-07-27.
+    - url: https://services.casa.gov.au/airworth/airwd/data/adweb.csv
+      directStatus: 403
+      note: Documented by CASA as the listing of all current ADs. Not retrieved from this host.
+    - url: https://services.casa.gov.au/airworth/airwd/data/folder.csv
+      directStatus: 403
+      note: Documented by CASA as the listing of aircraft/equipment types. Not retrieved from this host.
+    - url: https://services.casa.gov.au/CSV/acrftreg.csv
+      directStatus: 403
+      note: Documented by CASA as ~7.6MB comma-delimited full civil aircraft register, updated daily.
+    - url: https://services.casa.gov.au/CSV/acrftreg.zip
+      directStatus: 403
+      note: Documented by CASA as ~1MB zip of the same file.
+    - url: https://services.casa.gov.au/CSV/availablemarks.pdf
+      directStatus: 403
+      note: Aircraft register available registration marks, linked from CASA site navigation.
+    - url: https://data.casa.rpasplatform.net/
+      directStatus: 403
+    - url: https://data.casa.rpasplatform.net/casa/data/advisories.geojson
+      directStatus: 403
+      note: Named in RPAS Platform Operating Rules Attachment A as the CASA Advisories feed, refresh at least every 15 minutes.
+    - url: https://data.casa.rpasplatform.net/casa/data/notifications.json
+      directStatus: 403
+      note: Named in Operating Rules Attachment A as CASA Notifications; "URL needs authentication with a service account."
+    - url: https://data.casa.rpasplatform.net/casa/gcd
+      directStatus: 403
+      note: Named in Operating Rules Attachment A; other GCD files, refresh at least every 24 hours.
+    - url: https://data.casa.rpasplatform.net/asa/gcd
+      directStatus: 403
+      note: Named in Operating Rules Attachment A; facility maps, refresh at least every 24 hours.
+    - url: https://data.casa.rpasplatform.net/openapi.json
+      directStatus: 403
+    - url: https://data.casa.rpasplatform.net/swagger.json
+      directStatus: 403
+    - url: https://developer.casa.gov.au/
+      directStatus: 000
+      note: No response; no developer subdomain observed.
+    - url: https://api.casa.gov.au/
+      directStatus: 000
+      note: No response; no api subdomain observed.
+    - url: https://docs.casa.gov.au/
+      directStatus: 000
+    - url: https://data.casa.gov.au/
+      directStatus: 000
+    - url: https://data.gov.au/data/api/3/action/package_search
+      directStatus: 200
+      note: >-
+        Australia's national CKAN catalogue was queried for "Civil Aviation
+        Safety Authority", "aircraft register CASA" and title:"Civil Aircraft
+        Register". No CASA-published dataset was returned. CASA distributes its
+        open data from its own services.casa.gov.au host, not data.gov.au.
+switchingCost:
+  interfaceShape:
+    value: proprietary-documented
+    standardsNamed:
+      - >-
+        InterUSS Platform (open source) — the RPAS Platform Operating Rules
+        state CASA's automated compliance test suite was "developed using the
+        open-source InterUSS Platform" and that the RPAS Platform "acts as the
+        Test Director, managing application initiated and CASA initiated
+        automated testing via its integration of the InterUSS test suite."
+        This is conformance testing, not the data contract itself.
+      - >-
+        ICAO Doc 8643 aircraft type designators appear as a field in the
+        aircraft register data and record pages.
+      - >-
+        GeoJSON and JSON as media types on the RPAS Platform feeds.
+      - >-
+        CASR Part 47 (registration) and CASR Part 39 (airworthiness directives)
+        define the record content in law.
+    notFound:
+      - No OpenAPI, Swagger, RAML, AsyncAPI or JSON Schema document anywhere on casa.gov.au or services.casa.gov.au.
+      - No OpenTravel/OTA, HTNG, NDC, or IATA messaging standard — none is relevant to a safety regulator.
+    assessment: >-
+      The contract is a set of CASA-specific file schemas. The AD JSON is a
+      bespoke {"DATA":[...]} envelope with CASA field names (ADName, ADNUMBER,
+      ADFILE, FOLDERNAME, GROUPTITLE, SeriesNumber). CASA explicitly warns
+      "the format of this file is subject to change." The register CSV uses
+      CASA coded fields documented only on CASA's own pages. The RPAS Platform
+      feeds are CASA-defined GeoJSON/JSON at CASA-defined paths. Everything is
+      documented in prose or PDF; nothing is machine-readable as a spec. An
+      integrator writes CASA-specific parsing code, and the only reason that is
+      tolerable is that the data volume is small and the source is free.
+  secondSource:
+    value: no-alternative
+    alternativesConsidered:
+      - name: Recreational Aviation Australia and other sport-aviation self-administering organisations
+        verdict: Not a substitute. They administer their own membership registers, not the VH- Australian Civil Aircraft Register.
+      - name: FAA Aircraft Registry / EASA / other national registries
+        verdict: Different jurisdictions. They cannot supply Australian registration or Australian AD data.
+      - name: Airservices Australia
+        verdict: >-
+          Complementary, not substitutable. Airservices is the authoritative
+          source for Australian airspace and aeronautical data, and CASA's own
+          RPAS Platform rules require software providers to license that data
+          directly from Airservices at their own cost. Airservices does not
+          publish the aircraft register or Airworthiness Directives.
+      - name: Third-party redistributors (for example BeliefMedia's CASA Register API, 16right, flyntas register search)
+        verdict: >-
+          Mirrors, not second sources. They cache and re-expose CASA's own
+          published register data. Switching to one of them does not remove
+          the dependency on CASA; it adds a hop and a staleness risk.
+    assessment: >-
+      For Australian civil aircraft registration and Australian Airworthiness
+      Directives, CASA is the only route. This is the honest finding: a national
+      regulator holding a statutory register has no second source by
+      construction. CASR 47.030 obliges CASA to publish, which is a legal
+      floor under availability but is not a competitive alternative.
+  exitPath:
+    value: bulk-export-documented
+    operationsCited:
+      - https://services.casa.gov.au/CSV/acrftreg.csv
+      - https://services.casa.gov.au/CSV/acrftreg.zip
+      - https://services.casa.gov.au/JSON/combinedadweb.json
+      - https://services.casa.gov.au/airworth/airwd/data/adweb.csv
+      - https://services.casa.gov.au/airworth/airwd/data/folder.csv
+    assessment: >-
+      For the open surfaces the exit path is unusually clean: the entire
+      dataset IS the bulk export. There is no per-record API to migrate off,
+      no key to lose, and the whole register can be taken in one file and kept.
+      The asymmetry sits on the gated side. RPAS Platform Terms and Conditions
+      clause 47.1 requires that on termination or expiry the Software Provider
+      "must ensure the Software (a) no longer Uses CASA Data, and (b) includes
+      a prominent statement to that effect for the information of Users."
+      So a drone-app vendor leaving the platform must strip CASA data out of
+      its product and tell its own users it has done so — a negative exit path
+      layered directly on top of an otherwise open dataset.
+  identifierPortability:
+    value: >-
+      Shared industry identifiers dominate: VH- nationality and registration
+      marks, ICAO Doc 8643 aircraft type designators, manufacturer serial
+      numbers, type certificate numbers, and CASA AD series/number identifiers
+      that are themselves the public citation format (for example AD/B747/100
+      resolving to /airworth/airwd/ADfiles/over/b747/B747-100.pdf). The only
+      vendor-internal key observed is the opaque numeric "ID" field in
+      combinedadweb.json (for example 7773) and the ADFILE/FOLDERNAME pair.
+    assessment: >-
+      This is the most portable part of the CASA surface. VH- marks and ICAO
+      type designators travel to any other aviation system in the world, so
+      records keyed on them join cleanly to FAA, EASA, ADS-B, MRO and insurance
+      datasets. Nobody is locked in by CASA's identifiers. Contrast this with
+      travel distribution, where PNR record locators and GDS-specific record
+      IDs are the binding agents — CASA has no equivalent.
+  contractualLockIn:
+    openDataFiles: >-
+      Nothing published. No click-through terms, no licence statement and no
+      attribution requirement was found on the aircraft register data files
+      page or the Airworthiness Directives data files page. The register
+      publication itself is compelled by CASR 47.030.
+    rpasPlatform:
+      source: https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-terms-conditions.pdf
+      verbatim:
+        - clause: '1.1'
+          text: >-
+            "This Agreement commences on the Production Date and, unless
+            terminated earlier, continues for the duration of the Initial
+            Agreement Period."
+        - clause: 'Item 4 / Item 5'
+          text: '"Initial Agreement Period 1.1 Four years" and "Option Period 1.2 One further period of two years".'
+        - clause: '15.1'
+          text: >-
+            "CASA grants to the Software Provider a personal, non-exclusive,
+            non-transferable, world-wide, revocable licence to: (a) Use CASA
+            Data to operate with the Software ... (c) Commercialise CASA Data
+            in conjunction with the Software in accordance with clause 16, and
+            (d) sublicense CASA Data to Third Party Developers and Related Body
+            Corporates in accordance with clause 20.3."
+        - clause: '16.1'
+          text: >-
+            "the Software Provider may Commercialise CASA Data subject to this
+            Agreement. However, so far as the CASA Data it collects through
+            connecting to the RPAS Platform comprises Personal Information, the
+            Software Provider may not Commercialise that information except
+            where expressly authorised by the Operating Rules."
+        - clause: '16.2(b) / 16.3(b)'
+          text: >-
+            Third Party Developers and Related Body Corporates are not permitted
+            "to Commercialise any Third Party Data Source, the Platform API or
+            the RPAS Platform itself."
+        - clause: '10.1'
+          text: >-
+            "Unless otherwise stated in a CASA Approval, CASA will not impose a
+            fee on the Software Provider for allowing its Software to connect to
+            the RPAS Platform or to interface with it, unless it is required to
+            pass on Third Party costs (for example, aeronautical data
+            subscription fees)."
+        - clause: '44.1'
+          text: >-
+            "The Software Provider may terminate this Agreement at any time by
+            giving CASA six weeks' Notice." Clause 44.2 conditions that right on
+            the provider notifying all its Users that the Software will no
+            longer be available or will cease to Use CASA Data, with written
+            confirmation to CASA within 10 Business Days (clause 44.3).
+        - clause: '45.1 / 45.2'
+          text: >-
+            "CASA may terminate or reduce the scope of this Agreement (including
+            by reducing or removing any CASA Data or Data Sources from the RPAS
+            Platform) at any time, by giving the Software Provider eight weeks'
+            Notice." If CASA does so, "the Software Provider will not be
+            entitled to any compensation."
+        - clause: '46.1'
+          text: '"CASA may terminate this Agreement immediately by notice to the Software Provider if: ..." (termination for default).'
+        - clause: '47.1'
+          text: >-
+            "On the termination or expiry of this Agreement, the Software
+            Provider must ensure the Software: (a) no longer Uses CASA Data, and
+            (b) includes a prominent statement to that effect for the
+            information of Users."
+        - clause: 'Recital H'
+          text: >-
+            "CASA will permit the Software to connect with the RPAS Platform in
+            accordance with this Agreement. If CASA determines the Software does
+            not comply with this Agreement, it may suspend its connection to, or
+            remove it from, the RPAS Platform."
+      exclusivity: >-
+        None. The licence is expressly non-exclusive. CASA does not restrict the
+        provider from building on other airspace platforms, and it publishes a
+        list of every verified competitor on its own website.
+      asymmetry: >-
+        Six weeks' notice out for the provider versus eight weeks' notice for
+        convenience by CASA with no compensation, a revocable licence, immediate
+        suspension rights, and a hard data-strip obligation on exit. The
+        commercial risk is not a lock-in fee; it is that a business built on the
+        platform can be switched off on two months' notice with nothing owed.
+  accessGate:
+    value: self-serve
+    openDataFiles:
+      gate: none
+      whatADeveloperMustSign: Nothing. No account, no key, no click-through, no attribution requirement located.
+    rpasPlatform:
+      gate: application-approval
+      currentlyOpen: false
+      whatADeveloperMustSign: >-
+        A written application to CASA; acceptance of the RPAS Platform Terms
+        and Conditions (four-year initial term); a Declaration of Compliance
+        with the RPAS Platform Operating Rules, including the DoC worksheet; a
+        formal onboarding check-out demonstrated live to CASA against the RPAS
+        Platform Test Procedure, with only two attempts permitted before the
+        provider is dropped from that onboarding round; and demonstrable
+        compliance with applicable Australian Government security and privacy
+        requirements including the ASD Essential Eight, entirely at the
+        provider's own expense.
+      whatADeveloperMustPay: >-
+        Nothing to CASA. But ConOps clause 13.1 states "Software Providers must
+        source airspace and other aviation data directly from Airservices
+        Australia. There is a licensing fee for accessing this data and
+        applicants must be paid before CASA will consider approving access to
+        the RPAS Platform." A commercial agreement with a third party is
+        therefore a precondition of a free government API.
+      environments:
+        - Staging — credentials issued once the initial written application is accepted and terms are agreed.
+        - Development — CASA internal only.
+        - Production — credentials issued only after the minimum requirements for approval are met.
+      ongoingObligations: >-
+        CASA conducts a post-implementation review within 90 days of connection,
+        scheduled twice-yearly testing of all applications, and ad-hoc testing
+        at its discretion.
+      currentStatus: >-
+        "New app providers may apply to onboard to the CASA digital platform" for
+        Sydney Harbour AAA (R405A/R405B) and airspace awareness maps only. CASA
+        states: "Only existing app providers connected to the CASA digital
+        platform can deliver AAA at the 10 trial aerodromes. CASA has paused
+        onboarding for new providers while Airservices implement FIMS."
+      incumbents:
+        - Aerologix
+        - AVCRM's RPA Manager
+        - FlyFreely
+        - ok2fly by Avsoft
+        - OpenSky by Wing Aviation LLC
+      note: >-
+        The RPAS Platform itself was built for CASA by Wing Aviation LLC, and
+        CASA "operates the RPAS Platform under a licence from the RPAS Platform
+        Developer" (Terms and Conditions, Recital B). Wing also ships OpenSky,
+        one of the verified apps that consumes the platform. That is a genuine
+        structural observation about who holds the intermediary position here.
+  distributionModel:
+    value: not-applicable
+    ndcPosture: not applicable
+    assessment: >-
+      CASA is a safety regulator, not a travel distributor. It certifies air
+      operators, registers aircraft, issues Airworthiness Directives and
+      licenses crew. It has no inventory, no fares, no PNRs, no GDS
+      relationship and no NDC posture, and it imposes no distribution or
+      consumer-disclosure obligations on airlines. The Australian regulatory
+      counterweight to the distribution structure — fares, consumer rights,
+      competition — sits with other bodies, not with CASA. Anyone modelling the
+      Australian travel distribution seam should look to Qantas, Virgin
+      Australia, Jetstar, Webjet, Flight Centre, Corporate Travel Management and
+      SiteMinder; CASA is the safety substrate underneath all of them and is
+      deliberately outside that chain.
+  regulatorDataProducts:
+    - name: Australian Civil Aircraft Register
+      openness: open bulk file, no key, updated daily, statutory publication obligation under CASR 47.030
+    - name: Airworthiness Directives
+      openness: open JSON and CSV listings plus individually addressable PDFs, no key
+    - name: Aircraft register search centre
+      openness: public web UI only, one record per URL, no documented machine interface
+    - name: Available registration marks
+      openness: published PDF
+    - name: RPAS advisories, notifications and geospatial content
+      openness: gated partner API, service-account authentication
+    - name: Aviation complaints, consultation and Flight Safety Australia
+      openness: CASA-managed public websites, no published machine interface
+sources:
+  - url: https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft
+    type: Documentation
+    note: Aircraft register bulk files, daily update, CASR 47.030 obligation, data integrity and MTOW caveats.
+  - url: https://www.casa.gov.au/aircraft/airworthiness/airworthiness-directives/data-files-all-airworthiness-directives
+    type: Documentation
+    note: combinedadweb.json, adweb.csv, folder.csv and the AD PDF addressing convention.
+  - url: https://www.casa.gov.au/drones/industry-initiatives/digital-platform
+    type: Documentation
+    note: RPAS Digital Platform scope, onboarding status, FIMS transition, and the full reference-document set.
+  - url: https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-concept-of-operations.pdf
+    type: Documentation
+    note: 'Version 2.0 MAR 2021. Platform environments, "RPAS Platform APIs" section, minimum requirements for approval, Airservices data fee precondition.'
+  - url: https://www.casa.gov.au/sites/default/files/2022-06/rpas-platform-operating-rules.pdf
+    type: Documentation
+    note: Attachment A authoritative data table naming data.casa.rpasplatform.net endpoints, refresh rates and service-account authentication; InterUSS test suite integration.
+  - url: https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-terms-conditions.pdf
+    type: TermsOfService
+    note: Source of every verbatim contractual clause quoted above.
+  - url: https://www.casa.gov.au/knowyourdrone/drone-safety-apps
+    type: Documentation
+    note: Current list of CASA-verified drone safety apps.
+  - url: https://www.casa.gov.au/search-centre/aircraft-register/api
+    type: Documentation
+    note: Confirmed false positive — the aircraft register record for VH-API, not an API page.
+  - url: https://services.casa.gov.au/JSON/combinedadweb.json
+    type: JSON
+    note: Live open data endpoint, confirmed parseable 2026-07-28.
+actions:
+  apisYmlCreated: true
+  apisListed: 3
+  openapiHarvested: false
+  specsCount: 0
+  openapiDirectoryCreated: false
+  reason: >-
+    No OpenAPI, Swagger, AsyncAPI, JSON Schema or Postman artifact is published
+    by CASA anywhere that was probed. Nothing was written to openapi/ because
+    nothing real was found, and no spec was authored or inferred.
