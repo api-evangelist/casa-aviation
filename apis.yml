@@ -167,6 +167,8 @@ apis:
         name: Qualify for CASA RPAS Digital Platform access
         url: skills/casa-aviation-rpas-platform-access.md
 common:
+  - type: MCPServer
+    url: mcp/casa-aviation-mcp.yml
   - type: Vocabulary
     url: vocabulary/casa-aviation-vocabulary.yml
   - type: Examples
