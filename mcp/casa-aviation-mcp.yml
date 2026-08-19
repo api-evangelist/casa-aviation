@@ -2,69 +2,54 @@ generated: '2026-07-28'
 method: probed
 status: none
 source: live probes 2026-07-28
-summary: >-
-  CASA operates no MCP server. No hosted or remote MCP endpoint is published, no
-  MCP entry exists in any public registry, and there is no OpenAPI to derive a
-  candidate tool list from. No `MCPServer` pointer is wired into apis.yml, because
-  there is no server to point at.
+summary: CASA operates no MCP server. No hosted or remote MCP endpoint is published, no MCP entry exists
+  in any public registry, and there is no OpenAPI to derive a candidate tool list from. No `MCPServer`
+  pointer is wired into apis.yml, because there is no server to point at.
 findings:
-  - surface: https://my.casa.gov.au/.well-known/oauth-authorization-server
-    status: 500
-    observed_body: >-
-      {"error":"server_error","error_description":"MCP is not enabled for this
-      site","timestamp":"2026-07-28T14:28:42.1397344Z"}
-    interpretation: >-
-      myCASA runs on Microsoft Power Pages (Dynamics 365 portal; response headers
-      include x-ms-portal-app and Dynamics365PortalAnalytics, and the CSP frames
-      Azure AD B2C at b2cprodcasa.b2clogin.com). Power Pages ships an optional MCP
-      server feature whose OAuth metadata endpoint returns exactly this error when
-      the feature is disabled. This tells us the CAPABILITY exists in the platform
-      CASA already runs and is currently switched off. It is not a CASA API, and it
-      must not be read as one.
-  - surface: registry search
-    status: none
-    interpretation: >-
-      No official CASA MCP server was found on npm (@modelcontextprotocol or
-      otherwise), in the MCP registry, or in CASA documentation. A third-party
-      server exists for the US FAA aircraft registry
-      (@cyanheads/faa-aircraft-registry-mcp-server) but there is no Australian
-      equivalent and no CASA-published one.
-candidate_tools_note: >-
-  A candidate tool list was NOT derived. The pipeline derives candidate MCP tools
-  from OpenAPI operations, and CASA publishes no OpenAPI. The two open CASA
-  products are whole-file downloads rather than parameterised operations, so any
-  "tools" would be invented rather than derived.
+- surface: https://my.casa.gov.au/.well-known/oauth-authorization-server
+  status: 500
+  observed_body: '{"error":"server_error","error_description":"MCP is not enabled for this site","timestamp":"2026-07-28T14:28:42.1397344Z"}'
+  interpretation: myCASA runs on Microsoft Power Pages (Dynamics 365 portal; response headers include
+    x-ms-portal-app and Dynamics365PortalAnalytics, and the CSP frames Azure AD B2C at b2cprodcasa.b2clogin.com).
+    Power Pages ships an optional MCP server feature whose OAuth metadata endpoint returns exactly this
+    error when the feature is disabled. This tells us the CAPABILITY exists in the platform CASA already
+    runs and is currently switched off. It is not a CASA API, and it must not be read as one.
+- surface: registry search
+  status: none
+  interpretation: No official CASA MCP server was found on npm (@modelcontextprotocol or otherwise), in
+    the MCP registry, or in CASA documentation. A third-party server exists for the US FAA aircraft registry
+    (@cyanheads/faa-aircraft-registry-mcp-server) but there is no Australian equivalent and no CASA-published
+    one.
+candidate_tools_note: A candidate tool list was NOT derived. The pipeline derives candidate MCP tools
+  from OpenAPI operations, and CASA publishes no OpenAPI. The two open CASA products are whole-file downloads
+  rather than parameterised operations, so any "tools" would be invented rather than derived.
 reprobe_2026_07_28:
-  note: >-
-    The previous round asked for a re-probe of the Power Pages MCP surface. Done
-    on 2026-07-28, and this round went one step further and called the MCP
-    endpoint itself. Result unchanged: the capability is present in the platform
-    and switched off.
+  note: 'The previous round asked for a re-probe of the Power Pages MCP surface. Done on 2026-07-28, and
+    this round went one step further and called the MCP endpoint itself. Result unchanged: the capability
+    is present in the platform and switched off.'
   probes:
-    - surface: 'GET https://my.casa.gov.au/.well-known/oauth-authorization-server'
-      status: 500
-      body: '{"error":"server_error","error_description":"MCP is not enabled for this site","timestamp":"2026-07-28T15:08:20.9602395Z"}'
-    - surface: 'GET https://my.casa.gov.au/.well-known/oauth-protected-resource'
-      status: 404
-    - surface: 'POST https://my.casa.gov.au/mcp  {"jsonrpc":"2.0","id":1,"method":"tools/list"}'
-      status: 404
-      body: '{"error":"MCP is not enabled for this site"}'
-      interpretation: >-
-        The Power Pages MCP route EXISTS at /mcp and answers JSON-RPC with a
-        feature-disabled error rather than a generic Power Pages 404 page. That
-        is a stronger signal than the metadata endpoint alone: the transport is
-        wired, the feature flag is off. Still not a CASA API - CASA has made no
-        statement about MCP and there is no tool surface to record. Recorded as
-        the platform fact it is.
-    - surface: 'https://services.casa.gov.au and https://data.casa.rpasplatform.net'
-      status: '404 / 403'
-      interpretation: No MCP surface on either data host.
-what_would_change_this: >-
-  If CASA switched the Power Pages MCP feature on at my.casa.gov.au/mcp, or
-  published an OpenAPI for the RPAS Platform feeds, a real tool surface would
-  become derivable. Re-probe POST /mcp with tools/list on the next enrichment
-  round - a 200 there is the trigger.
-tool_crosswalk: >-
-  Not emitted. A ToolCrosswalk binds MCP tools to backing OpenAPI operationIds;
-  CASA has neither an MCP tool list nor an OpenAPI, so there is nothing on either
-  side of the crosswalk to bind.
+  - surface: GET https://my.casa.gov.au/.well-known/oauth-authorization-server
+    status: 500
+    body: '{"error":"server_error","error_description":"MCP is not enabled for this site","timestamp":"2026-07-28T15:08:20.9602395Z"}'
+  - surface: GET https://my.casa.gov.au/.well-known/oauth-protected-resource
+    status: 404
+  - surface: POST https://my.casa.gov.au/mcp  {"jsonrpc":"2.0","id":1,"method":"tools/list"}
+    status: 404
+    body: '{"error":"MCP is not enabled for this site"}'
+    interpretation: 'The Power Pages MCP route EXISTS at /mcp and answers JSON-RPC with a feature-disabled
+      error rather than a generic Power Pages 404 page. That is a stronger signal than the metadata endpoint
+      alone: the transport is wired, the feature flag is off. Still not a CASA API - CASA has made no
+      statement about MCP and there is no tool surface to record. Recorded as the platform fact it is.'
+  - surface: https://services.casa.gov.au and https://data.casa.rpasplatform.net
+    status: 404 / 403
+    interpretation: No MCP surface on either data host.
+what_would_change_this: If CASA switched the Power Pages MCP feature on at my.casa.gov.au/mcp, or published
+  an OpenAPI for the RPAS Platform feeds, a real tool surface would become derivable. Re-probe POST /mcp
+  with tools/list on the next enrichment round - a 200 there is the trigger.
+tool_crosswalk: Not emitted. A ToolCrosswalk binds MCP tools to backing OpenAPI operationIds; CASA has
+  neither an MCP tool list nor an OpenAPI, so there is nothing on either side of the crosswalk to bind.
+deployment:
+  mode: none
+  verified: derived
+  checked: '2026-08-12'
+  source: catalog MCP census
