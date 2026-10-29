@@ -1,4 +1,4 @@
-# Civil Aviation Safety Authority (CASA) (casa-aviation)
+# Civil Aviation Safety Authority (CASA)
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,128 +66,120 @@
 
 The Civil Aviation Safety Authority (CASA) is Australia's independent statutory aviation safety regulator, established under the Civil Aviation Act 1988. It maintains the Australian Civil Aircraft Register (VH- marks), issues Airworthiness Directives, licenses flight crew and maintenance organisations, certifies air operators, and regulates drone and RPAS operations. CASA sits entirely OUTSIDE the travel distribution chain — it is a safety regulator, not a distributor, so it has no GDS, NDC, channel-manager or OTA position, and airline fare distribution, full-content agreements and consumer disclosure are not CASA functions. Its API posture is split and honest: two genuinely open, no-key, documented bulk data products (the full Airworthiness Directives listing as JSON/CSV and the complete civil aircraft register as a daily CSV, both served from services.casa.gov.au), and one approval-gated partner API — the CASA RPAS Digital Platform at data.casa.rpasplatform.net — whose endpoints are named in public PDFs but require a service account, a signed four-year agreement, a CASA onboarding check-out and a paid Airservices Australia airspace data licence. There is no self-serve developer portal, no OpenAPI, and new RPAS Platform onboarding is currently paused pending Airservices' Flight Information Management System.
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/casa-aviation/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/casa-aviation/refs/heads/main/apis.yml)
+**Areas:** Travel · Australia · Aviation · Airports · Government · Regulator · Aviation Safety · Open Data · Drones
 
-## Tags
+## Civil Aviation Safety Authority (CASA) on APIs.io
 
-- Travel
-- Australia
-- Aviation
-- Airports
-- Government
-- Regulator
-- Aviation Safety
-- Open Data
-- Drones
+Everything profiled for Civil Aviation Safety Authority (CASA) is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/casa-aviation/](https://apis.io/providers/casa-aviation/)** — or go straight to one of the APIs or properties below.
 
-## Timestamps
+### APIs (3)
 
-- **Created:** 2026-07-28
-- **Modified:** 2026-07-28
+- [CASA Airworthiness Directives Data Files](https://apis.io/apis/casa-aviation/casa-airworthiness-directives-data/) — Open, unauthenticated bulk data files covering every current Australian Airworthiness Directive (AD). combinedadweb.json lists all current ADs with aircraft…
+- [Australian Civil Aircraft Register Data Files](https://apis.io/apis/casa-aviation/casa-aircraft-register-data/) — The complete Australian Civil Aircraft Register published as a daily comma-delimited data file (acrftreg.csv, approximately 7.6MB) and a zip compressed…
+- [CASA RPAS Digital Platform API](https://apis.io/apis/casa-aviation/casa-rpas-digital-platform/) — A partner-only API that supplies CASA advisories, notifications and geospatial map data to drone safety applications, and processes Automated Airspace…
 
-## APIs
+### Published properties
 
-### CASA Airworthiness Directives Data Files
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-Open, unauthenticated bulk data files covering every current Australian Airworthiness Directive (AD). combinedadweb.json lists all current ADs with aircraft and equipment references; adweb.csv lists all current ADs and folder.csv lists the aircraft and equipment types. Individual AD documents are addressable as PDFs under /airworth/airwd/ADfiles/ by folder and file number. CASA states the JSON file format is subject to change. No API key, no registration and no terms acceptance are required to download.
+#### MCP servers (1)
 
-- **Human URL:** [https://www.casa.gov.au/aircraft/airworthiness/airworthiness-directives/data-files-all-airworthiness-directives](https://www.casa.gov.au/aircraft/airworthiness/airworthiness-directives/data-files-all-airworthiness-directives)
-- **Base URL:** `https://services.casa.gov.au`
+Model Context Protocol servers that expose the API to agents.
 
-#### Tags
+- [casa-aviation-mcp.yml](https://apis.io/servers/casa-aviation/casa-aviation-mcp-yml/)
 
-- Aviation
-- Airworthiness
-- Safety
-- Open Data
-- Australia
+#### JSON Schema (3)
 
-#### Properties
+The data models the API reads and writes.
 
-- [Documentation](https://www.casa.gov.au/aircraft/airworthiness/airworthiness-directives/data-files-all-airworthiness-directives)
-- [Documentation](https://www.casa.gov.au/aircraft/airworthiness/airworthiness-directives)
-- [JSON](https://services.casa.gov.au/JSON/combinedadweb.json)
-- [CSV](https://services.casa.gov.au/airworth/airwd/data/adweb.csv)
-- [CSV](https://services.casa.gov.au/airworth/airwd/data/folder.csv)
+- [CASA Airworthiness Directive listing row (adweb.csv) and series row (folder.csv)](https://apis.io/schemas/casa-aviation/casa-aviation-ad-listing-row.schema/)
+- [Australian Civil Aircraft Register row (acrftreg.csv)](https://apis.io/schemas/casa-aviation/casa-aviation-aircraft-register-row.schema/)
+- [CASA Airworthiness Directive record (combinedadweb.json)](https://apis.io/schemas/casa-aviation/casa-aviation-airworthiness-directive.schema/)
 
-### Australian Civil Aircraft Register Data Files
+#### Vocabulary (1)
 
-The complete Australian Civil Aircraft Register published as a daily comma-delimited data file (acrftreg.csv, approximately 7.6MB) and a zip compressed equivalent (acrftreg.zip, approximately 1MB). CASR 47.030 requires CASA to publish or make available data relating to the civil register; only aircraft currently registered in Australia are included. Records carry VH- registration marks, manufacturer, model, serial number, MTOW, year and country of manufacture, engine and propeller details, ICAO Doc 8643 type designator, type certificate, registration holder and registered operator with address and commencement dates. Coded fields are documented on separate CASA pages. No API key or registration required.
+The provider's domain terms, defined.
 
-- **Human URL:** [https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft](https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft)
-- **Base URL:** `https://services.casa.gov.au/CSV`
+- [Casa Aviation Vocabulary](https://apis.io/vocabularies/casa-aviation/casa-aviation-vocabulary/)
 
-#### Tags
+#### Examples (2)
 
-- Aviation
-- Aircraft
-- Registration
-- Open Data
-- Australia
+Example requests and responses.
 
-#### Properties
+- [Casa Aviation Aircraft Register Examples](https://apis.io/examples/casa-aviation/casa-aviation-aircraft-register-examples/)
+- [Casa Aviation Airworthiness Directives Examples](https://apis.io/examples/casa-aviation/casa-aviation-airworthiness-directives-examples/)
 
-- [Documentation](https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft)
-- [Documentation](https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft/downloading-and-using-our-data-files)
-- [Documentation](https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft/meaning-coded-fields-registered-aircraft)
-- [Documentation](https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft/list-coded-fields-registered-aircraft)
-- [CSV](https://services.casa.gov.au/CSV/acrftreg.csv)
-- [Archive](https://services.casa.gov.au/CSV/acrftreg.zip)
-- [Documentation](https://www.casa.gov.au/search-centre/aircraft-register)
+#### Security (3)
 
-### CASA RPAS Digital Platform API
+Authentication, trust centre, and vulnerability disclosure.
 
-A partner-only API that supplies CASA advisories, notifications and geospatial map data to drone safety applications, and processes Automated Airspace Authorisations for Sydney Harbour (R405A/B) and ten trial controlled aerodromes. Endpoints are named in the public RPAS Platform Operating Rules — advisories.geojson and notifications.json under /casa/data/, plus /casa/gcd and /asa/gcd for geospatial content — and the Operating Rules state the URLs need authentication with a service account. Access requires a written application, acceptance of the RPAS Platform Terms and Conditions, a formal onboarding check-out against the RPAS Platform Test Procedure (two attempts allowed), staging then production credentials issued by CASA, and a paid Airservices Australia airspace data licence sourced independently. CASA has paused onboarding of new providers for the ten trial aerodromes pending Airservices' Flight Information Management System. Not a self-serve API.
+- [Casa Aviation Authentication](https://apis.io/security/casa-aviation/casa-aviation-authentication/)
+- [Casa Aviation Domain Security](https://apis.io/security/casa-aviation/casa-aviation-domain-security/)
+- [Casa Aviation Vulnerability Disclosure](https://apis.io/security/casa-aviation/casa-aviation-vulnerability-disclosure/)
 
-- **Human URL:** [https://www.casa.gov.au/drones/industry-initiatives/digital-platform](https://www.casa.gov.au/drones/industry-initiatives/digital-platform)
-- **Base URL:** `https://data.casa.rpasplatform.net`
+## Where to find this API
 
-#### Tags
-
-- Aviation
-- Drones
-- RPAS
-- Airspace
-- Partner API
-- Australia
-
-#### Properties
-
-- [Documentation](https://www.casa.gov.au/drones/industry-initiatives/digital-platform)
-- [Documentation](https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-concept-of-operations.pdf)
-- [Documentation](https://www.casa.gov.au/sites/default/files/2022-06/rpas-platform-operating-rules.pdf)
-- [Documentation](https://www.casa.gov.au/sites/default/files/2026-06/rpas-platform-test-procedure.pdf)
-- [Documentation](https://www.casa.gov.au/sites/default/files/2026-06/rpas-platform-declaration-compliance.pdf)
-- [Terms Of Service](https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-terms-conditions.pdf)
-- [Documentation](https://www.casa.gov.au/knowyourdrone/drone-safety-apps)
-
-## Common Properties
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
 
 - [Website](https://www.casa.gov.au/)
 - [Documentation](https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft)
-- [Portal](https://my.casa.gov.au/)
-- [Terms Of Service](https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-terms-conditions.pdf)
+- [Getting started](https://www.casa.gov.au/aircraft/aircraft-registration/data-files-registered-aircraft/downloading-and-using-our-data-files)
+- [Support](https://www.casa.gov.au/about-us/contact-us)
 - [Blog](https://www.casa.gov.au/about-us/news-media-releases-and-speeches)
-- [Blog RSS](https://www.casa.gov.au/rss.xml)
-- [Contact](https://www.casa.gov.au/about-us/contact-us)
-- [LinkedIn](https://www.linkedin.com/company/civil-aviation-safety-authority-casa-/)
-- [YouTube](http://www.youtube.com/user/casabriefing)
-- [Facebook](https://www.facebook.com/CivilAviationSafetyAuthority)
-- [Instagram](https://www.instagram.com/casabriefing)
+- [Security](https://www.casa.gov.au/about-us/reporting-and-accountability/external-security-vulnerability-disclosure-program)
+- [Terms of service](https://www.casa.gov.au/sites/default/files/2021-09/rpas-platform-terms-conditions.pdf)
+- [Privacy policy](https://www.casa.gov.au/about-us/about-website/privacy-statement)
+- [Status](https://my.casa.gov.au/outage/)
 
-## Switching Cost
+## API Evangelist rating
 
-Recorded in full in [review.yml](review.yml).
+**Kin Score 24.9** — emerging · rubric 0.24.0 · scored 2026-10-17
 
-- **Interface shape:** `proprietary-documented` — CASA-specific CSV and JSON file schemas documented only in prose; no OpenAPI anywhere. The one open standard in play is the InterUSS Platform, used for the RPAS Platform's automated conformance test suite, not for the data contract.
-- **Second source:** `no-alternative` — for the Australian civil aircraft register and Australian Airworthiness Directives, CASA is the only route. Third-party register APIs are mirrors of CASA's own published files.
-- **Exit path:** `bulk-export-documented` — the whole dataset is the export. The asymmetry is on the gated side, where RPAS Platform Terms and Conditions clause 47.1 obliges a departing provider to strip CASA data from its product and tell its users it has done so.
-- **Identifier portability:** VH- registration marks, ICAO Doc 8643 type designators, manufacturer serial numbers and AD series numbers — all shared industry keys that travel anywhere. Only the numeric `ID` in combinedadweb.json is CASA-internal.
-- **Contractual lock-in:** nothing published for the open files. For the RPAS Platform: four-year initial term plus a two-year option, six weeks' notice out for the provider, eight weeks' termination for convenience by CASA with no compensation, and a revocable, non-exclusive, non-transferable licence.
-- **Access gate:** open files need nothing at all; the RPAS Platform needs a written application, signed terms, a Declaration of Compliance, a live onboarding check-out with two attempts, and a paid Airservices airspace data licence — and new onboarding is currently paused.
-- **Distribution model:** `not-applicable`. **NDC posture:** not applicable.
+| Facet | Score |
+|---|---|
+| Discoverability | 71.4 |
+| Contract quality | 9.9 |
+| Contract governance | 8.3 |
+| Operational transparency | 21.1 |
+| Developer ergonomics | 37.5 |
+| Access clarity | 10.5 |
 
-## Maintainers
+**Agent readiness 7.6** — agent-aware
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | — |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | documented (partial credit) |
+| Rate Limit Signal | — |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 26.5** — Government & Public Sector
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/casa-aviation/](https://apis.io/providers/casa-aviation/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Civil Aviation Safety Authority (CASA): the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/casa-aviation/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
